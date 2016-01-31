@@ -1,3 +1,6 @@
 # Hello Triangle
 
-simple sample showing a complete rendering of a triangle
+Tiny project based on:
+
+* HelloTriangle, showing the rendering of a rotating triangle
+* HelloTexture, showing the rendering of a rotating square with a texture 
