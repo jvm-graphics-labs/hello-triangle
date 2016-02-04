@@ -1,6 +1,11 @@
 # Hello Triangle
 
-Project showing an Hello Triangle (and Texture) in pure jogl.
+This project, in pure jogl, contains the following:
+
+* [HelloTriangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/helloTriangle), showing the rendering of a rotating triangle <a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="200" ></a>
+
+* [HelloTexture](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/helloTexture), showing the rendering of a rotating square with a texture <a href="url"><img src="http://i.imgur.com/HbnqqX5.png" width="200" ></a> 
+
 
 Steps:
 
@@ -11,8 +16,3 @@ Steps:
 
 If you have any problem/question/doubt do not hesitate asking on the [jogl forums](http://forum.jogamp.org/) or [StackOverflow](http://stackoverflow.com/) or open an [issue here](https://github.com/elect86/helloTriangle/issues)
 
-This project contains the following:
-
-* [HelloTriangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/helloTriangle), showing the rendering of a rotating triangle <a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="200" ></a>
-
-* [HelloTexture](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/helloTexture), showing the rendering of a rotating square with a texture <a href="url"><img src="http://i.imgur.com/HbnqqX5.png" width="200" ></a> 
