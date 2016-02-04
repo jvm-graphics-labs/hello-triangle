@@ -9,6 +9,8 @@ Steps:
 * clone, download, copy/paste the code or do whatever you like with the code of the samples.
 * run it and enjoy the opengl acceleration on java  :sunglasses:
 
+If you have any problem/question/doubt do not hesitate asking on the [jogl forums](http://forum.jogamp.org/) or [StackOverflow](http://stackoverflow.com/) or open an [issue here](https://github.com/elect86/helloTriangle/issues)
+
 This project contains the following:
 
 * [HelloTriangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/helloTriangle), showing the rendering of a rotating triangle <a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="200" ></a>
