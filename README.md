@@ -24,6 +24,7 @@ A rotating triangle featuring:
 - right way to dispose
 
 
+
 * [GL3 HelloTexture](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTexture), showing the rendering of a rotating square with a texture <a href="url"><img src="http://i.imgur.com/HbnqqX5.png" width="200" ></a> 
 
 
