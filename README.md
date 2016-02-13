@@ -2,7 +2,27 @@
 
 This project, in pure jogl, contains the following:
 
-* [HelloTriangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/helloTriangle), showing the rendering of a rotating triangle <a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="200" ></a>
+### [HelloTriangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/helloTriangle) <a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="200" ></a>
+
+A rotating triangle featuring: 
+- GL4
+- pure newt
+- glWindow options
+- animator
+- indexed drawing
+- dynamic attribute binding
+- dynamic frag data binding
+- interleaved data
+- vertex array object (VAO)
+- vertex buffer object (VBO) with normalization on one attribute
+- index buffer object (IBO) with shorts
+- uniform
+- glsl program (with specific suffix) jogl util 
+- matrix jogl util 
+- gl error check
+- key listener 
+- right way to dispose
+
 
 * [HelloTexture](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/helloTexture), showing the rendering of a rotating square with a texture <a href="url"><img src="http://i.imgur.com/HbnqqX5.png" width="200" ></a> 
 
