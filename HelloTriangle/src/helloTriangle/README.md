@@ -51,9 +51,9 @@ private static class Fragment {
     public static final int COLOR = 0;
     public static final int SIZE = 1;
 }
-private IntBuffer objects = GLBuffers.newDirectIntBuffer(Object.SIZE);
+private IntBuffer objectsName = GLBuffers.newDirectIntBuffer(Object.SIZE);
 ```
-Simple helper classes to write/read OpenGL objects from our `IntBuffer objects`. They make the code more readable, easier to understand and decrease the possibility of errors. Strongly suggested.
+Simple helper classes to write/read OpenGL objects from our `IntBuffer objectsName`. OpenGL handles objects based on name (integer values). These classes make the code more readable, easier to understand and decrease the possibility of errors. Strongly suggested.
 ```java
 private byte[] vertexData = new byte[]{
     (byte) -1, (byte) -1, Byte.MAX_VALUE, (byte) 0, (byte) 0,
@@ -69,9 +69,28 @@ They can be separated in different buffers, contiguous or interleaved.
 Separated:
 * buffer0 -> [position0, position1, ...]
 * buffer1 -> [color0, color1, ...]
+
 Contiguous:
 * buffer0 -> [position0, positio1, ..., color0, color1, ...]
+
 Interleaved:
 * buffer0 -> [position0, color0, position1, color1, ...]
-Interleaved is the best option since it exploits data locality and this is the option is used here. For each line, the first two bytes indicates the position while the last four the color of the i-th vertex. Take in account the positions are going to be used as they are but the colors are going to be, instead, normalized. Since I am going to load them as signed bytes they will be resolved in the range [-1, 1]. That is, in the shaders, a `Byte.MAX_VALUE` will correspond to a value equal to 1.
+ 
+
+Interleaved is the best option since it exploits data locality and this is the option is used here. For each line, the first two bytes indicates the position while the last four the color of the i-th vertex. Take in account the positions are going to be used as they are but the colors are going to be instead normalized. Since I am going to load them as signed bytes they will be resolved in the range [-1, 1]. That is, in the shaders, a `Byte.MAX_VALUE` will correspond to a value equal to 1.
 How many vertices can you store? You cannot know a priori. But you will hit the limit once you get a `GL_OUT_OF_MEMORY` error.
+
+`indexData` is instead the array containing the indices. We choose element/index rendering, this means OpenGL will fetch the vertices attributes from the `vertexData` based on the supplied indices, that is vertex 0, vertex 2 and then vertex 1.
+```java
+private int programName, modelToClipMatrixUL;
+private final String SHADERS_ROOT = "/shaders";
+/**
+* Use pools, you don't want to create and let them cleaned by the garbage
+* collector continuously in the display() method.
+*/
+private float[] scale = new float[16];
+private float[] zRotazion = new float[16];
+private float[] modelToClip = new float[16];
+private long start, now;
+```
+`programName` is the variable holding the program (shader) name (int). `
