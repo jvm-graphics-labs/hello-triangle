@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package helloTexture;
+package gl3.helloTriangle;
 
 import com.jogamp.nativewindow.util.Dimension;
 import com.jogamp.newt.Display;
@@ -31,22 +31,16 @@ import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.GLBuffers;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
-import com.jogamp.opengl.util.texture.TextureData;
-import com.jogamp.opengl.util.texture.TextureIO;
 import framework.BufferUtils;
-import framework.Semantic;
-import java.io.File;
-import java.io.IOException;
-import java.nio.FloatBuffer;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author gbarbieri
  */
-public class HelloTexture implements GLEventListener, KeyListener {
+public class HelloTriangle implements GLEventListener, KeyListener {
 
     private static int screenIdx = 0;
     private static Dimension windowSize = new Dimension(1024, 768);
@@ -55,7 +49,7 @@ public class HelloTexture implements GLEventListener, KeyListener {
     private static boolean fullscreen = false;
     private static boolean mouseVisible = true;
     private static boolean mouseConfined = false;
-    private static String title = "Hello Texture";
+    private static String title = "Hello Triangle";
     public static GLWindow glWindow;
     public static Animator animator;
 
@@ -77,38 +71,59 @@ public class HelloTexture implements GLEventListener, KeyListener {
         glWindow.setTitle(title);
         glWindow.setVisible(true);
 
-        HelloTexture helloTexture = new HelloTexture();
-        glWindow.addGLEventListener(helloTexture);
-        glWindow.addKeyListener(helloTexture);
+        HelloTriangle helloTriangle = new HelloTriangle();
+        glWindow.addGLEventListener(helloTriangle);
+        glWindow.addKeyListener(helloTriangle);
 
         animator = new Animator(glWindow);
         animator.start();
     }
 
-    private int[] objects = new int[Semantic.Object.SIZE];
-    // Position interleaved with texture coordinate.
-    private float[] vertexData = new float[]{
-        -0.5f, -0.5f, 0f, 0f,
-        -0.5f, +0.5f, 0f, 1f,
-        +0.5f, +0.5f, 1f, 1f,
-        +0.5f, -0.5f, 1f, 0f
+    private static class Object {
+
+        public static final int VBO = 0;
+        public static final int IBO = 1;
+        public static final int VAO = 2;
+        public static final int SIZE = 3;
+    }
+
+    private static class Attribute {
+
+        public static final int POSITION = 0;
+        public static final int COLOR = 1;
+        public static final int SIZE = 2;
+    }
+
+    private static class Fragment {
+
+        public static final int COLOR = 0;
+        public static final int SIZE = 1;
+    }
+
+    private IntBuffer objectsName = GLBuffers.newDirectIntBuffer(Object.SIZE);
+
+    private byte[] vertexData = new byte[]{
+        (byte) -1, (byte) -1, Byte.MAX_VALUE, (byte) 0, (byte) 0,
+        (byte) +0, (byte) +2, (byte) 0, (byte) 0, Byte.MAX_VALUE,
+        (byte) +1, (byte) -1, (byte) 0, Byte.MAX_VALUE, (byte) 0
     };
+    
     private short[] indexData = new short[]{
-        0, 1, 3,
-        1, 2, 3
+        0, 2, 1
     };
-    private int program, modelToClipMatrixUL, texture0UL;
-    private final String SHADERS_ROOT = "src/helloTexture/shaders";
-    private final String TEXTURE_ROOT = "src/helloTexture/asset";
-    private final String TEXTURE_NAME = "texture.png";
+
+    private int programName, modelToClipMatrixUL;
+    private final String SHADERS_ROOT = "/shaders";
     /**
      * Use pools, you don't want to create and let them cleaned by the garbage
-     * collector continuosly in the display() method.
+     * collector continuously in the display() method.
      */
+    private float[] scale = new float[16];
     private float[] zRotazion = new float[16];
+    private float[] modelToClip = new float[16];
     private long start, now;
 
-    public HelloTexture() {
+    public HelloTriangle() {
 
     }
 
@@ -124,10 +139,6 @@ public class HelloTexture implements GLEventListener, KeyListener {
 
         initVao(gl4);
 
-        initTexture(gl4);
-
-        initSampler(gl4);
-
         initProgram(gl4);
 
         gl4.glEnable(GL4.GL_DEPTH_TEST);
@@ -137,16 +148,13 @@ public class HelloTexture implements GLEventListener, KeyListener {
 
     private void initVbo(GL4 gl4) {
 
-        gl4.glGenBuffers(1, objects, Semantic.Object.VBO);
-        gl4.glBindBuffer(GL4.GL_ARRAY_BUFFER, objects[Semantic.Object.VBO]);
+        objectsName.position(Object.VBO);
+        gl4.glGenBuffers(1, objectsName);
+        gl4.glBindBuffer(GL4.GL_ARRAY_BUFFER, objectsName.get(Object.VBO));
         {
-            FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(vertexData);
-            int size = vertexData.length * Float.BYTES;
+            ByteBuffer vertexBuffer = GLBuffers.newDirectByteBuffer(vertexData);
+            int size = vertexData.length * Byte.BYTES;
             gl4.glBufferData(GL4.GL_ARRAY_BUFFER, size, vertexBuffer, GL4.GL_STATIC_DRAW);
-            /**
-             * Since vertexBuffer is a direct buffer, this means it is outside
-             * the Garbage Collector job and it is up to us to remove it.
-             */
             BufferUtils.destroyDirectBuffer(vertexBuffer);
         }
         gl4.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
@@ -156,8 +164,9 @@ public class HelloTexture implements GLEventListener, KeyListener {
 
     private void initIbo(GL4 gl4) {
 
-        gl4.glGenBuffers(1, objects, Semantic.Object.IBO);
-        gl4.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, objects[Semantic.Object.IBO]);
+        objectsName.position(Object.IBO);
+        gl4.glGenBuffers(1, objectsName);
+        gl4.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, objectsName.get(Object.IBO));
         {
             ShortBuffer indexBuffer = GLBuffers.newDirectShortBuffer(indexData);
             int size = indexData.length * Short.BYTES;
@@ -173,13 +182,14 @@ public class HelloTexture implements GLEventListener, KeyListener {
         /**
          * Let's create the VAO and save in it all the attributes properties.
          */
-        gl4.glGenVertexArrays(1, objects, Semantic.Object.VAO);
-        gl4.glBindVertexArray(objects[Semantic.Object.VAO]);
+        objectsName.position(Object.VAO);
+        gl4.glGenVertexArrays(1, objectsName);
+        gl4.glBindVertexArray(objectsName.get(Object.VAO));
         {
             /**
              * Ibo is part of the VAO, so we need to bind it and leave it bound.
              */
-            gl4.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, objects[Semantic.Object.IBO]);
+            gl4.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, objectsName.get(Object.IBO));
             {
                 /**
                  * VBO is not part of VAO, we need it to bind it only when we
@@ -187,23 +197,33 @@ public class HelloTexture implements GLEventListener, KeyListener {
                  * that VAO knows which VBO the attributes refer to, then we can
                  * unbind it.
                  */
-                gl4.glBindBuffer(GL4.GL_ARRAY_BUFFER, objects[Semantic.Object.VBO]);
+                gl4.glBindBuffer(GL4.GL_ARRAY_BUFFER, objectsName.get(Object.VBO));
                 {
-                    int stride = (2 + 2) * Float.BYTES;
+                    /**
+                     * This is the vertex attribute layout:
+                     *
+                     * | position x | position y | color R | color G | color B |
+                     */
+                    int stride = (2 + 3) * Byte.BYTES;
                     /**
                      * We draw in 2D on the xy plane, so we need just two
                      * coordinates for the position, it will be padded to vec4
                      * as (x, y, 0, 1) in the vertex shader.
                      */
-                    gl4.glEnableVertexAttribArray(Semantic.Attr.POSITION);
-                    gl4.glVertexAttribPointer(Semantic.Attr.POSITION, 2, GL4.GL_FLOAT,
-                            false, stride, 0 * Float.BYTES);
+                    gl4.glEnableVertexAttribArray(Attribute.POSITION);
+                    gl4.glVertexAttribPointer(Attribute.POSITION, 2, GL4.GL_BYTE,
+                            false, stride, 0 * Byte.BYTES);
                     /**
-                     * 2D Texture coordinates.
+                     * Color needs three coordinates. We show the usage of
+                     * normalization, where signed value get normalized [-1, 1]
+                     * like in this case. unsigned will get normalized in the
+                     * [0, 1] instead, but take in account java use always
+                     * signed, althought you can trick it. Vec3 color will be
+                     * padded to (x, y, z, 1) in the fragment shader.
                      */
-                    gl4.glEnableVertexAttribArray(Semantic.Attr.TEXCOORD);
-                    gl4.glVertexAttribPointer(Semantic.Attr.TEXCOORD, 2, GL4.GL_FLOAT,
-                            false, stride, 2 * Float.BYTES);
+                    gl4.glEnableVertexAttribArray(Attribute.COLOR);
+                    gl4.glVertexAttribPointer(Attribute.COLOR, 3, GL4.GL_BYTE,
+                            true, stride, 2 * Byte.BYTES);
                 }
                 gl4.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
             }
@@ -211,81 +231,6 @@ public class HelloTexture implements GLEventListener, KeyListener {
         gl4.glBindVertexArray(0);
 
         checkError(gl4, "initVao");
-    }
-
-    private void initTexture(GL4 gl4) {
-
-        try {
-            File textureFile = new File(TEXTURE_ROOT + "/" + TEXTURE_NAME);
-
-            /**
-             * Texture data is an object containing all the relevant information
-             * about texture.
-             */
-            TextureData textureData = TextureIO.newTextureData(gl4.getGLProfile(), textureFile, false, TextureIO.PNG);
-            /**
-             * We don't use multiple levels (mipmaps) here, then our maximum
-             * level is zero.
-             */
-            int level = 0;
-
-            gl4.glGenTextures(1, objects, Semantic.Object.TEXTURE);
-
-            gl4.glBindTexture(GL4.GL_TEXTURE_2D, objects[Semantic.Object.TEXTURE]);
-            {
-                /**
-                 * In this example internal format is GL_RGB8, dimensions are
-                 * 512 x 512, border should always be zero, pixelFormat GL_RGB,
-                 * pixelType GL_UNSIGNED_BYTE.
-                 */
-                gl4.glTexImage2D(GL4.GL_TEXTURE_2D, level, textureData.getInternalFormat(),
-                        textureData.getWidth(), textureData.getHeight(), textureData.getBorder(),
-                        textureData.getPixelFormat(), textureData.getPixelType(), textureData.getBuffer());
-                /**
-                 * We set the base and max level.
-                 */
-                gl4.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_BASE_LEVEL, 0);
-                gl4.glTexParameteri(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_MAX_LEVEL, level);
-                /**
-                 * We set the swizzling. Since it is an RGB texture, we can
-                 * choose to make the missing component alpha equal to one.
-                 */
-                int[] swizzle = new int[]{GL4.GL_RED, GL4.GL_GREEN, GL4.GL_BLUE, GL4.GL_ONE};
-                gl4.glTexParameterIiv(GL4.GL_TEXTURE_2D, GL4.GL_TEXTURE_SWIZZLE_RGBA, swizzle, 0);
-            }
-            gl4.glBindTexture(GL4.GL_TEXTURE_2D, 0);
-
-        } catch (IOException ex) {
-            Logger.getLogger(HelloTexture.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private void initSampler(GL4 gl4) {
-
-        /**
-         * As with most OpenGL objects, we create a sampler object with
-         * glGenSamplers. However, notice something unusual with the next series
-         * of functions. We do not bind a sampler to the context to set
-         * parameters in it, nor does glSamplerParameter take a context target.
-         * We simply pass an object directly to the function.
-         */
-        gl4.glGenSamplers(1, objects, Semantic.Object.SAMPLER);
-
-        gl4.glSamplerParameteri(objects[Semantic.Object.SAMPLER], GL4.GL_TEXTURE_MAG_FILTER, GL4.GL_NEAREST);
-        gl4.glSamplerParameteri(objects[Semantic.Object.SAMPLER], GL4.GL_TEXTURE_MIN_FILTER, GL4.GL_NEAREST);
-        /**
-         * OpenGL names the components of the texture coordinate “strq” rather
-         * than “xyzw” or “uvw” as is common. Indeed, OpenGL has two different
-         * names for the components: “strq” is used in the main API, but “stpq”
-         * is used in GLSL shaders. Much like “rgba”, you can use “stpq” as
-         * swizzle selectors for any vector instead of the traditional “xyzw”.
-         * The reason for the odd naming is that OpenGL tries to keep vector
-         * suffixes from conflicting. “uvw” does not work because “w” is already
-         * part of the “xyzw” suffix. In GLSL, the “r” in “strq” conflicts with
-         * “rgba”, so they had to go with “stpq” instead.
-         */
-        gl4.glSamplerParameteri(objects[Semantic.Object.SAMPLER], GL4.GL_TEXTURE_WRAP_S, GL4.GL_CLAMP_TO_EDGE);
-        gl4.glSamplerParameteri(objects[Semantic.Object.SAMPLER], GL4.GL_TEXTURE_WRAP_T, GL4.GL_CLAMP_TO_EDGE);
     }
 
     private void initProgram(GL4 gl4) {
@@ -300,33 +245,22 @@ public class HelloTexture implements GLEventListener, KeyListener {
 
         shaderProgram.init(gl4);
 
-        program = shaderProgram.program();
+        programName = shaderProgram.program();
 
         /**
          * These links don't go into effect until you link the program. If you
          * want to change index, you need to link the program again.
          */
-        gl4.glBindAttribLocation(program, Semantic.Attr.POSITION, "position");
-        gl4.glBindAttribLocation(program, Semantic.Attr.TEXCOORD, "texCoord");
-        gl4.glBindFragDataLocation(program, Semantic.Frag.COLOR, "outputColor");
+        gl4.glBindAttribLocation(programName, Attribute.POSITION, "position");
+        gl4.glBindAttribLocation(programName, Attribute.COLOR, "color");
+        gl4.glBindFragDataLocation(programName, Fragment.COLOR, "outputColor");
 
         shaderProgram.link(gl4, System.out);
         /**
          * Take in account that JOGL offers a GLUniformData class, here we don't
          * use it, but take a look to it since it may be interesting for you.
          */
-        modelToClipMatrixUL = gl4.glGetUniformLocation(program, "modelToClipMatrix");
-        texture0UL = gl4.glGetUniformLocation(program, "texture0");
-
-        gl4.glUseProgram(program);
-        {
-            /**
-             * We bind the uniform texture0UL to the Texture Image Units zero
-             * or, in other words, Semantic.Uniform.TEXTURE0.
-             */
-            gl4.glUniform1i(texture0UL, Semantic.Sampler.DIFFUSE);
-        }
-        gl4.glUseProgram(0);
+        modelToClipMatrixUL = gl4.glGetUniformLocation(programName, "modelToClipMatrix");
 
         checkError(gl4, "initProgram");
     }
@@ -337,18 +271,17 @@ public class HelloTexture implements GLEventListener, KeyListener {
 
         GL4 gl4 = drawable.getGL().getGL4();
 
-        gl4.glDeleteProgram(program);
+        gl4.glDeleteProgram(programName);
         /**
          * Clean VAO first in order to minimize problems. If you delete IBO
          * first, VAO will still have the IBO id, this may lead to crashes.
          */
-        gl4.glDeleteVertexArrays(1, objects, objects[Semantic.Object.VAO]);
-
-        gl4.glDeleteBuffers(1, objects, Semantic.Object.VBO);
-
-        gl4.glDeleteBuffers(1, objects, Semantic.Object.IBO);
-
-        gl4.glDeleteTextures(1, objects, Semantic.Object.TEXTURE);
+        objectsName.position(Object.VAO);
+        gl4.glDeleteVertexArrays(1, objectsName);
+        objectsName.position(Object.VBO);
+        gl4.glDeleteBuffers(1, objectsName);
+        objectsName.position(Object.IBO);
+        gl4.glDeleteBuffers(1, objectsName);
 
         System.exit(0);
     }
@@ -367,9 +300,9 @@ public class HelloTexture implements GLEventListener, KeyListener {
         gl4.glClearDepthf(1f);
         gl4.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT);
 
-        gl4.glUseProgram(program);
+        gl4.glUseProgram(programName);
         {
-            gl4.glBindVertexArray(objects[Semantic.Object.VAO]);
+            gl4.glBindVertexArray(objectsName.get(Object.VAO));
             {
                 now = System.currentTimeMillis();
                 float diff = (float) (now - start) / 1000;
@@ -377,36 +310,12 @@ public class HelloTexture implements GLEventListener, KeyListener {
                  * Here we build the matrix that will multiply our original
                  * vertex positions. We scale, halving it, and rotate it.
                  */
+                scale = FloatUtil.makeScale(scale, true, 0.5f, 0.5f, 0.5f);
                 zRotazion = FloatUtil.makeRotationEuler(zRotazion, 0, 0, 0, diff);
-                gl4.glUniformMatrix4fv(modelToClipMatrixUL, 1, false, zRotazion, 0);
-                /**
-                 * The glActiveTexture function changes the current texture
-                 * unit. All subsequent texture operations, whether
-                 * glBindTexture, glTexImage, glTexParameter, etc, affect the
-                 * texture bound to the current texture unit.
-                 *
-                 * What this means is that if you want to modify a texture, you
-                 * must overwrite a texture unit that may already be bound. This
-                 * is usually not a huge problem, because you rarely modify
-                 * textures in the same area of code used to render. But you
-                 * should be aware of this.
-                 *
-                 * Also note the peculiar glActiveTexture syntax for specifying
-                 * the image unit: GL_TEXTURE0 + Semantic.Uniform.TEXTURE0. This
-                 * is the correct way to specify which texture unit, because
-                 * glActiveTexture is defined in terms of an enumerator rather
-                 * than integer texture image units.
-                 */
-                gl4.glActiveTexture(GL4.GL_TEXTURE0 + Semantic.Sampler.DIFFUSE);
-                gl4.glBindTexture(GL4.GL_TEXTURE_2D, objects[Semantic.Object.TEXTURE]);
-                {
-                    gl4.glBindSampler(Semantic.Sampler.DIFFUSE, objects[Semantic.Object.SAMPLER]);
-                    {
-                        gl4.glDrawElements(GL4.GL_TRIANGLES, indexData.length, GL4.GL_UNSIGNED_SHORT, 0);
-                    }
-                    gl4.glBindSampler(Semantic.Sampler.DIFFUSE, 0);
-                }
-                gl4.glBindTexture(GL4.GL_TEXTURE_2D, 0);
+                modelToClip = FloatUtil.multMatrix(scale, zRotazion);
+                gl4.glUniformMatrix4fv(modelToClipMatrixUL, 1, false, modelToClip, 0);
+
+                gl4.glDrawElements(GL4.GL_TRIANGLES, indexData.length, GL4.GL_UNSIGNED_SHORT, 0);
             }
             /**
              * In this sample we bind VAO to the default values, this is not a
@@ -473,7 +382,7 @@ public class HelloTexture implements GLEventListener, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            HelloTexture.animator.stop();
+            HelloTriangle.animator.stop();
         }
     }
 
