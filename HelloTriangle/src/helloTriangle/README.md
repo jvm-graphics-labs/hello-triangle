@@ -67,11 +67,11 @@ private short[] indexData = new short[]{
 `vertexData` is the array where all the vertex attributes are stored. Each line represents an interleaved vertex attribute and they are counted starting from zero. This means the first line are the vertex attributes for vertex 0, the second vertex 1 and the last one vertex 2. Usually floats are used, but in this sample I went with bytes. 
 They can be separated in different buffers, contiguous or interleaved.
 Separated:
-buffer0 -> [position0, position1, ...]
-buffer1 -> [color0, color1, ...]
+* buffer0 -> [position0, position1, ...]
+* buffer1 -> [color0, color1, ...]
 Contiguous:
-buffer0 -> [position0, positio1, ..., color0, color1, ...]
+* buffer0 -> [position0, positio1, ..., color0, color1, ...]
 Interleaved:
-buffer0 -> [position0, color0, position1, color1, ...]
+* buffer0 -> [position0, color0, position1, color1, ...]
 Interleaved is the best option since it exploits data locality and this is the option is used here. For each line, the first two bytes indicates the position while the last four the color of the i-th vertex. Take in account the positions are going to be used as they are but the colors are going to be, instead, normalized. Since I am going to load them as signed bytes they will be resolved in the range [-1, 1]. That is, in the shaders, a `Byte.MAX_VALUE` will correspond to a value equal to 1.
 How many vertices can you store? You cannot know a priori. But you will hit the limit once you get a `GL_OUT_OF_MEMORY` error.
