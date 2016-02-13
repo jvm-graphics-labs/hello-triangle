@@ -1,8 +1,8 @@
-# Hello Triangle
-
 This project, in pure jogl, contains the following:
 
-### [HelloTriangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/helloTriangle) <a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="200" ></a>
+### [HelloTriangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/helloTriangle) 
+
+<a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="200" ></a>
 
 A rotating triangle featuring: 
 - GL4
