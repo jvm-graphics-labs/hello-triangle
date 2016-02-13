@@ -1,11 +1,11 @@
 This project, in pure jogl, contains the following:
 
-### [HelloTriangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/helloTriangle) 
+### [GL3 HelloTriangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTriangle) 
 
 <a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="200" ></a>
 
 A rotating triangle featuring: 
-- GL4
+- GL3
 - pure newt
 - glWindow options
 - animator
@@ -24,7 +24,7 @@ A rotating triangle featuring:
 - right way to dispose
 
 
-* [HelloTexture](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/helloTexture), showing the rendering of a rotating square with a texture <a href="url"><img src="http://i.imgur.com/HbnqqX5.png" width="200" ></a> 
+* [GL3 HelloTexture](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTexture), showing the rendering of a rotating square with a texture <a href="url"><img src="http://i.imgur.com/HbnqqX5.png" width="200" ></a> 
 
 
 Steps:
