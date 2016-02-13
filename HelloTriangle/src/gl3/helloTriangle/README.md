@@ -100,7 +100,7 @@ Actually there are other two spaces in between, the World and the Camera(View) S
 Model Space * modelToWorld matrix = World Space * worldToCamera/View matrix = Camera/View Space 
 * camera/viewToClip (projection) matrix -> Clip Space
 
-http://web.archive.org/web/20140106105946/http://www.arcsynthesis.org/gltut/Positioning/TransformPipeline.svg
+<a href="url"><img src="http://web.archive.org/web/20140106105946/http://www.arcsynthesis.org/gltut/Positioning/TransformPipeline.svg"></a>
 
 but here we keep it simple and use just a matrix that transforms vertices directly form Model to Clip Space.
 Why we declare them here instead inside our rendering loop (the `display()` method)? Because we try to keep
