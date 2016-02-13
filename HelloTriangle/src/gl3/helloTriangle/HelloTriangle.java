@@ -117,7 +117,6 @@ public class HelloTriangle implements GLEventListener, KeyListener {
     private long start, now;
 
     public HelloTriangle() {
-
     }
 
     @Override
