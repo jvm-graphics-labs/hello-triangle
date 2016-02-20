@@ -98,8 +98,8 @@ public class HelloTexture implements GLEventListener, KeyListener {
         1, 2, 3
     };
     private int program, modelToClipMatrixUL, texture0UL;
-    private final String SHADERS_ROOT = "src/helloTexture/shaders";
-    private final String TEXTURE_ROOT = "src/helloTexture/asset";
+    private final String SHADERS_ROOT = "src/gl3/helloTexture/shaders";
+    private final String TEXTURE_ROOT = "src/gl3/helloTexture/asset";
     private final String TEXTURE_NAME = "texture.png";
     /**
      * Use pools, you don't want to create and let them cleaned by the garbage
