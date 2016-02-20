@@ -66,6 +66,7 @@ private short[] indexData = new short[]{
 ```
 `vertexData` is the array where all the vertex attributes are stored. Each line represents an interleaved vertex attribute and they are counted starting from zero. This means the first line are the vertex attributes for vertex 0, the second vertex 1 and the last one vertex 2. Usually floats are used, but in this sample I went with bytes. 
 They can be separated in different buffers, contiguous or interleaved.
+
 Separated:
 * buffer0 -> [position0, position1, ...]
 * buffer1 -> [color0, color1, ...]
@@ -100,7 +101,7 @@ Actually there are other two spaces in between, the World and the Camera(View) S
 Model Space * modelToWorld matrix = World Space * worldToCamera/View matrix = Camera/View Space 
 * camera/viewToClip (projection) matrix -> Clip Space
 
-http://web.archive.org/web/20140106105946/http://www.arcsynthesis.org/gltut/Positioning/TransformPipeline.svg
+<a href="url"><img src="http://web.archive.org/web/20140106105946/http://www.arcsynthesis.org/gltut/Positioning/TransformPipeline.svg"></a>
 
 but here we keep it simple and use just a matrix that transforms vertices directly form Model to Clip Space.
 Why we declare them here instead inside our rendering loop (the `display()` method)? Because we try to keep
