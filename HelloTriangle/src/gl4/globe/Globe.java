@@ -109,8 +109,7 @@ public class Globe implements GLEventListener, KeyListener {
     private final String SHADERS_ROOT = "src/gl4/globe/shaders";
     private final String SHADERS_NAME = "globe";
     private final String TEXTURE_ROOT = "src/gl4/globe/asset";
-//    private final String TEXTURE_NAME = "globe.gif";
-    private final String TEXTURE_NAME = "texture.png";
+    private final String TEXTURE_NAME = "globe.png";
     private float[] yRotazion = new float[16], lookAt = new float[16], projection = new float[16];
     private long start, now;
     /**
@@ -355,6 +354,9 @@ public class Globe implements GLEventListener, KeyListener {
         BufferUtils.destroyDirectBuffer(bufferName);
         BufferUtils.destroyDirectBuffer(textureName);
         BufferUtils.destroyDirectBuffer(samplerName);
+        
+        BufferUtils.destroyDirectBuffer(clearColor);
+        BufferUtils.destroyDirectBuffer(clearDepth);
 
         System.exit(0);
     }

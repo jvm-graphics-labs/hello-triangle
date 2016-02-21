@@ -13,6 +13,8 @@ import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.KeyListener;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.GL;
+import static com.jogamp.opengl.GL.GL_ELEMENT_ARRAY_BUFFER;
+import static com.jogamp.opengl.GL.GL_STATIC_DRAW;
 import static com.jogamp.opengl.GL3.*;
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -25,6 +27,7 @@ import com.jogamp.opengl.util.GLBuffers;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 import framework.BufferUtils;
+import framework.Semantic;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -35,33 +38,26 @@ import java.nio.ShortBuffer;
  */
 public class HelloTriangle implements GLEventListener, KeyListener {
 
-    private static int screenIdx = 0;
-    private static Dimension windowSize = new Dimension(1024, 768);
-    private static boolean undecorated = false;
-    private static boolean alwaysOnTop = false;
-    private static boolean fullscreen = false;
-    private static boolean mouseVisible = true;
-    private static boolean mouseConfined = false;
-    private static String title = "Hello Triangle";
     public static GLWindow glWindow;
     public static Animator animator;
 
     public static void main(String[] args) {
 
         Display display = NewtFactory.createDisplay(null);
-        Screen screen = NewtFactory.createScreen(display, screenIdx);
+        Screen screen = NewtFactory.createScreen(display, 0);
         GLProfile glProfile = GLProfile.get(GLProfile.GL3);
         GLCapabilities glCapabilities = new GLCapabilities(glProfile);
         glWindow = GLWindow.create(screen, glCapabilities);
 
-        glWindow.setSize(windowSize.getWidth(), windowSize.getHeight());
+        glWindow.setSize(1024, 768);
         glWindow.setPosition(50, 50);
-        glWindow.setUndecorated(undecorated);
-        glWindow.setAlwaysOnTop(alwaysOnTop);
-        glWindow.setFullscreen(fullscreen);
-        glWindow.setPointerVisible(mouseVisible);
-        glWindow.confinePointer(mouseConfined);
-        glWindow.setTitle(title);
+        glWindow.setUndecorated(false);
+        glWindow.setAlwaysOnTop(false);
+        glWindow.setFullscreen(false);
+        glWindow.setPointerVisible(true);
+        glWindow.confinePointer(false);
+        glWindow.setTitle("Hello Triangle");
+        
         glWindow.setVisible(true);
 
         HelloTriangle helloTriangle = new HelloTriangle();
@@ -72,48 +68,41 @@ public class HelloTriangle implements GLEventListener, KeyListener {
         animator.start();
     }
 
-    private static class Object {
-
-        public static final int VBO = 0;
-        public static final int IBO = 1;
-        public static final int VAO = 2;
-        public static final int SIZE = 3;
-    }
-
-    private static class Attribute {
-
-        public static final int POSITION = 0;
-        public static final int COLOR = 1;
-        public static final int SIZE = 2;
-    }
-
-    private static class Fragment {
-
-        public static final int COLOR = 0;
-        public static final int SIZE = 1;
-    }
-
-    private IntBuffer objectsName = GLBuffers.newDirectIntBuffer(Object.SIZE);
-
+    private final String SHADERS_ROOT = "/shaders";
+    private final String SHADERS_NAME = "/hello-triangle";
+    
+    private int vertexCount = 3;
+    private int vertexSize = vertexCount * 5 * Byte.BYTES;
     private byte[] vertexData = new byte[]{
         (byte) -1, (byte) -1, Byte.MAX_VALUE, (byte) 0, (byte) 0,
         (byte) +0, (byte) +2, (byte) 0, (byte) 0, Byte.MAX_VALUE,
         (byte) +1, (byte) -1, (byte) 0, Byte.MAX_VALUE, (byte) 0
     };
 
-    private short[] indexData = new short[]{
+    private int elementCount = 3;
+    private int elementSize = elementCount * Short.BYTES;
+    private short[] elementData = new short[]{
         0, 2, 1
     };
 
+    private IntBuffer bufferName = GLBuffers.newDirectIntBuffer(Buffer.MAX);
+    private IntBuffer vertexArrayName = GLBuffers.newDirectIntBuffer(1);
+
+    private static class Buffer {
+
+        public static final int VERTEX = 0;
+        public static final int ELEMENT = 1;
+        public static final int TRANSFORM = 2;
+        public static final int MAX = 3;
+    }
+
     private int programName, modelToClipMatrixUL;
-    private final String SHADERS_ROOT = "/shaders";
+    
     /**
      * Use pools, you don't want to create and let them cleaned by the garbage
      * collector continuously in the display() method.
      */
-    private float[] scale = new float[16];
-    private float[] zRotazion = new float[16];
-    private float[] modelToClip = new float[16];
+    private float[] scale = new float[16], zRotazion = new float[16], modelToClip = new float[16];
     private long start, now;
 
     public HelloTriangle() {
@@ -125,11 +114,9 @@ public class HelloTriangle implements GLEventListener, KeyListener {
 
         GL3 gl3 = drawable.getGL().getGL3();
 
-        initVbo(gl3);
+        initBuffers(gl3);
 
-        initIbo(gl3);
-
-        initVao(gl3);
+        initVertexArray(gl3);
 
         initProgram(gl3);
 
@@ -138,50 +125,39 @@ public class HelloTriangle implements GLEventListener, KeyListener {
         start = System.currentTimeMillis();
     }
 
-    private void initVbo(GL3 gl3) {
+    private void initBuffers(GL3 gl3) {
 
-        objectsName.position(Object.VBO);
-        gl3.glGenBuffers(1, objectsName);
-        gl3.glBindBuffer(GL_ARRAY_BUFFER, objectsName.get(Object.VBO));
+        gl3.glGenBuffers(Buffer.MAX, bufferName);
+        gl3.glBindBuffer(GL_ARRAY_BUFFER, bufferName.get(Buffer.VERTEX));
         {
             ByteBuffer vertexBuffer = GLBuffers.newDirectByteBuffer(vertexData);
-            int size = vertexData.length * Byte.BYTES;
-            gl3.glBufferData(GL_ARRAY_BUFFER, size, vertexBuffer, GL_STATIC_DRAW);
+            gl3.glBufferData(GL_ARRAY_BUFFER, vertexSize, vertexBuffer, GL_STATIC_DRAW);
             BufferUtils.destroyDirectBuffer(vertexBuffer);
         }
         gl3.glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        checkError(gl3, "initVbo");
-    }
-
-    private void initIbo(GL3 gl3) {
-
-        objectsName.position(Object.IBO);
-        gl3.glGenBuffers(1, objectsName);
-        gl3.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, objectsName.get(Object.IBO));
+        gl3.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferName.get(Buffer.ELEMENT));
         {
-            ShortBuffer indexBuffer = GLBuffers.newDirectShortBuffer(indexData);
-            int size = indexData.length * Short.BYTES;
-            gl3.glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indexBuffer, GL_STATIC_DRAW);
-            BufferUtils.destroyDirectBuffer(indexBuffer);
+            ShortBuffer elementBuffer = GLBuffers.newDirectShortBuffer(elementData);
+            gl3.glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementSize, elementBuffer, GL_STATIC_DRAW);
+            BufferUtils.destroyDirectBuffer(elementBuffer);
         }
         gl3.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        checkError(gl3, "initIbo");
+        checkError(gl3, "initBuffers");
     }
 
-    private void initVao(GL3 gl3) {
+    private void initVertexArray(GL3 gl3) {
         /**
          * Let's create the VAO and save in it all the attributes properties.
          */
-        objectsName.position(Object.VAO);
-        gl3.glGenVertexArrays(1, objectsName);
-        gl3.glBindVertexArray(objectsName.get(Object.VAO));
+        gl3.glGenVertexArrays(1, vertexArrayName);
+        gl3.glBindVertexArray(vertexArrayName.get(0));
         {
             /**
              * Ibo is part of the VAO, so we need to bind it and leave it bound.
              */
-            gl3.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, objectsName.get(Object.IBO));
+            gl3.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferName.get(Buffer.ELEMENT));
             {
                 /**
                  * VBO is not part of VAO, we need it to bind it only when we
@@ -189,7 +165,7 @@ public class HelloTriangle implements GLEventListener, KeyListener {
                  * that VAO knows which VBO the attributes refer to, then we can
                  * unbind it.
                  */
-                gl3.glBindBuffer(GL_ARRAY_BUFFER, objectsName.get(Object.VBO));
+                gl3.glBindBuffer(GL_ARRAY_BUFFER, bufferName.get(Buffer.VERTEX));
                 {
                     /**
                      * This is the vertex attribute layout:
@@ -203,8 +179,8 @@ public class HelloTriangle implements GLEventListener, KeyListener {
                      * coordinates for the position, it will be padded to vec4
                      * as (x, y, 0, 1) in the vertex shader.
                      */
-                    gl3.glEnableVertexAttribArray(Attribute.POSITION);
-                    gl3.glVertexAttribPointer(Attribute.POSITION, 2, GL_BYTE, false, stride, offset);
+                    gl3.glEnableVertexAttribArray(Semantic.Attr.POSITION);
+                    gl3.glVertexAttribPointer(Semantic.Attr.POSITION, 2, GL_BYTE, false, stride, offset);
                     /**
                      * Color needs three coordinates. We show the usage of
                      * normalization, where signed value get normalized [-1, 1]
@@ -214,8 +190,8 @@ public class HelloTriangle implements GLEventListener, KeyListener {
                      * padded to (x, y, z, 1) in the fragment shader.
                      */
                     offset = 2 * Byte.BYTES;
-                    gl3.glEnableVertexAttribArray(Attribute.COLOR);
-                    gl3.glVertexAttribPointer(Attribute.COLOR, 3, GL_BYTE, true, stride, offset);
+                    gl3.glEnableVertexAttribArray(Semantic.Attr.COLOR);
+                    gl3.glVertexAttribPointer(Semantic.Attr.COLOR, 3, GL_BYTE, true, stride, offset);
                 }
                 gl3.glBindBuffer(GL_ARRAY_BUFFER, 0);
             }
@@ -228,9 +204,9 @@ public class HelloTriangle implements GLEventListener, KeyListener {
     private void initProgram(GL3 gl3) {
 
         ShaderCode vertShader = ShaderCode.create(gl3, GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
-                null, "vs", "glsl", null, true);
-        ShaderCode fragShader = ShaderCode.create(gl3, GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT, 
-                null, "fs", "glsl", null, true);
+                null, SHADERS_NAME, "vert", null, true);
+        ShaderCode fragShader = ShaderCode.create(gl3, GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT,
+                null, SHADERS_NAME, "frag", null, true);
 
         ShaderProgram shaderProgram = new ShaderProgram();
         shaderProgram.add(vertShader);
@@ -244,9 +220,9 @@ public class HelloTriangle implements GLEventListener, KeyListener {
          * These links don't go into effect until you link the program. If you
          * want to change index, you need to link the program again.
          */
-        gl3.glBindAttribLocation(programName, Attribute.POSITION, "position");
-        gl3.glBindAttribLocation(programName, Attribute.COLOR, "color");
-        gl3.glBindFragDataLocation(programName, Fragment.COLOR, "outputColor");
+        gl3.glBindAttribLocation(programName, Semantic.Attr.POSITION, "position");
+        gl3.glBindAttribLocation(programName, Semantic.Attr.COLOR, "color");
+        gl3.glBindFragDataLocation(programName, Semantic.Frag.COLOR, "outputColor");
 
         shaderProgram.link(gl3, System.out);
         /**
@@ -265,16 +241,8 @@ public class HelloTriangle implements GLEventListener, KeyListener {
         GL3 gl3 = drawable.getGL().getGL3();
 
         gl3.glDeleteProgram(programName);
-        /**
-         * Clean VAO first in order to minimize problems. If you delete IBO
-         * first, VAO will still have the IBO id, this may lead to crashes.
-         */
-        objectsName.position(Object.VAO);
-        gl3.glDeleteVertexArrays(1, objectsName);
-        objectsName.position(Object.VBO);
-        gl3.glDeleteBuffers(1, objectsName);
-        objectsName.position(Object.IBO);
-        gl3.glDeleteBuffers(1, objectsName);
+        gl3.glDeleteVertexArrays(1, vertexArrayName);
+        gl3.glDeleteBuffers(Buffer.MAX, bufferName);
 
         System.exit(0);
     }
@@ -286,7 +254,7 @@ public class HelloTriangle implements GLEventListener, KeyListener {
         GL3 gl3 = drawable.getGL().getGL3();
 
         /**
-         * We set the clear color and depth (althought depth is not necessary
+         * We set the clear color and depth (although depth is not necessary
          * since it is 1 by default).
          */
         gl3.glClearColor(0f, .33f, 0.66f, 1f);
@@ -295,7 +263,7 @@ public class HelloTriangle implements GLEventListener, KeyListener {
 
         gl3.glUseProgram(programName);
         {
-            gl3.glBindVertexArray(objectsName.get(Object.VAO));
+            gl3.glBindVertexArray(vertexArrayName.get(0));
             {
                 now = System.currentTimeMillis();
                 float diff = (float) (now - start) / 1000;
@@ -308,11 +276,11 @@ public class HelloTriangle implements GLEventListener, KeyListener {
                 modelToClip = FloatUtil.multMatrix(scale, zRotazion);
                 gl3.glUniformMatrix4fv(modelToClipMatrixUL, 1, false, modelToClip, 0);
 
-                gl3.glDrawElements(GL_TRIANGLES, indexData.length, GL_UNSIGNED_SHORT, 0);
+                gl3.glDrawElements(GL_TRIANGLES, elementSize, GL_UNSIGNED_SHORT, 0);
             }
             /**
              * In this sample we bind VAO to the default values, this is not a
-             * cheapier binding, it costs always as a binding, so here we have
+             * cheaper binding, it costs always as a binding, so here we have
              * for example 2 vao bindings. Every binding means additional
              * validation and overhead, this may affect your performances. So if
              * you are looking for high performances skip these calls, but
