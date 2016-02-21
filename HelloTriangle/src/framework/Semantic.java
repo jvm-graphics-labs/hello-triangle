@@ -90,4 +90,9 @@ public class Semantic {
         public static final int INSTANCE = 7;
     }
 
+    public static class Stream {
+
+        public static final int _0 = 0;
+        public static final int _1 = 1;
+    }
 }

@@ -103,7 +103,7 @@ public class HelloTexture implements GLEventListener, KeyListener {
     private final String TEXTURE_NAME = "texture.png";
     /**
      * Use pools, you don't want to create and let them cleaned by the garbage
-     * collector continuosly in the display() method.
+     * collector continuously in the display() method.
      */
     private float[] zRotazion = new float[16];
     private long start, now;
