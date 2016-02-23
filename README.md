@@ -31,6 +31,7 @@ A rotating square with a texture
 
 ### [GL4 Globe](https://github.com/elect86/helloTriangle/blob/master/HelloTriangle/src/gl4/globe/Globe.java)
 
+<a href="url"><img src="http://i.imgur.com/0NqgdcP.png" width="200" ></a> 
 
 Quick start:
 
