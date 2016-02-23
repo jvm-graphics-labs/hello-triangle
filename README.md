@@ -29,7 +29,10 @@ A rotating triangle featuring:
 
 A rotating square with a texture
 
-Steps:
+### [GL4 Globe](https://github.com/elect86/helloTriangle/blob/master/HelloTriangle/src/gl4/globe/Globe.java)
+
+
+Quick start:
 
 * download [`jogamp-all-platforms.7z`](https://jogamp.org/deployment/jogamp-current/archive/jogamp-all-platforms.7z) and extract it wherever you like. This is the place where the jogl dependencies will be searched.
 * set up your [favourite IDE](https://jogamp.org/wiki/index.php/Setting_up_a_JogAmp_project_in_your_favorite_IDE) creating a library and pointing it to `jogamp-all-platforms\jar\gluegen-rt.jar` and `jogamp-all-platforms\jar\jogl-all.jar`. You are stronly advised to not move those jar since they need to lie in the same place as the natives of your platform are.
