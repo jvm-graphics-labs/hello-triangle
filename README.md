@@ -20,9 +20,9 @@ A rotating triangle using OpenGL 3
 
 ### [GL3 Hello Texture](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTexture)
 
-<a href="url"><img src="http://i.imgur.com/HbnqqX5.png" width="200" ></a> 
-
 A rotating square with a texture using GL3
+
+<a href="url"><img src="http://i.imgur.com/HbnqqX5.png" width="200" ></a> 
 
 Quick start:
 
