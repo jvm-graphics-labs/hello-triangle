@@ -1,18 +1,18 @@
 This project, in pure jogl, contains the following:
 
-### [GL4 Hello Triangle](https://github.com/elect86/helloTriangle/blob/master/HelloTriangle/src/gl4/helloTriangle/HelloTriangle.java)
+### [GL4 Hello Triangle](https://github.com/elect86/helloTriangle/blob/master/HelloTriangle/src/gl4/helloTriangle)
 
 <a href="url"><img src="http://i.imgur.com/TwaAkzc.png" width="200" ></a> 
 
-### [GL4 Globe](https://github.com/elect86/helloTriangle/blob/master/HelloTriangle/src/gl4/globe/Globe.java)
+### [GL4 Globe](https://github.com/elect86/helloTriangle/blob/master/HelloTriangle/src/gl4/globe)
 
 <a href="url"><img src="http://i.imgur.com/0NqgdcP.png" width="200" ></a> 
 
-### [GL3 Hello Triangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTriangle/HelloTriangle.java) 
+### [GL3 Hello Triangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTriangle) 
 
 <a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="200" ></a>
 
-### [GL3 Hello Texture](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTexture/HelloTexture.java)
+### [GL3 Hello Texture](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTexture)
 
 <a href="url"><img src="http://i.imgur.com/HbnqqX5.png" width="200" ></a> 
 
