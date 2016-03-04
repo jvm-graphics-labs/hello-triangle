@@ -69,8 +69,8 @@ public class HelloTriangle implements GLEventListener, KeyListener {
         animator.start();
     }
 
-    private final String SHADERS_ROOT = "/shaders";
-    private final String SHADERS_NAME = "/hello-triangle";
+    private final String SHADERS_ROOT = "src/gl3/helloTriangle/shaders";
+    private final String SHADERS_NAME = "hello-triangle";
 
     private int vertexCount = 3;
     private int vertexSize = vertexCount * 5 * Float.BYTES;
@@ -255,7 +255,7 @@ public class HelloTriangle implements GLEventListener, KeyListener {
         gl3.glClearColor(0f, .33f, 0.66f, 1f);
         gl3.glClearDepthf(1f);
         gl3.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
+
         {
             // update matrix based on time
             now = System.currentTimeMillis();
@@ -267,12 +267,13 @@ public class HelloTriangle implements GLEventListener, KeyListener {
             scale = FloatUtil.makeScale(scale, true, 0.5f, 0.5f, 0.5f);
             zRotazion = FloatUtil.makeRotationEuler(zRotazion, 0, 0, 0, diff);
             modelToClip = FloatUtil.multMatrix(scale, zRotazion);
-            gl3.glUniformMatrix4fv(modelToClipMatrixUL, 1, false, modelToClip, 0);
-
-            gl3.glDrawElements(GL_TRIANGLES, elementSize, GL_UNSIGNED_SHORT, 0);
         }
-        gl3.glUseProgram(programName);
+        gl3.glUseProgram(programName);        
         gl3.glBindVertexArray(vertexArrayName.get(0));
+        
+        gl3.glUniformMatrix4fv(modelToClipMatrixUL, 1, false, modelToClip, 0);
+
+        gl3.glDrawElements(GL_TRIANGLES, elementSize, GL_UNSIGNED_SHORT, 0);
         /**
          * The following line binds VAO and program to the default values, this
          * is not a cheaper binding, it costs always as a binding. Every binding
@@ -280,8 +281,8 @@ public class HelloTriangle implements GLEventListener, KeyListener {
          * performances. So you should avoid these calls, but remember that
          * OpenGL is a state machine, so what you left bound remains bound!
          */
-        //gl3.glBindVertexArray(0);
-        //gl3.glUseProgram(0);
+//        gl3.glBindVertexArray(0);
+//        gl3.glUseProgram(0);
         /**
          * Check always any GL error, but keep in mind this is an implicit
          * synchronization between CPU and GPU, so you should use it only for
