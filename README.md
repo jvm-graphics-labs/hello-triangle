@@ -2,27 +2,19 @@ This project, in pure jogl, contains the following:
 
 ### [GL4 Hello Triangle](https://github.com/elect86/helloTriangle/blob/master/HelloTriangle/src/gl4/helloTriangle)
 
-A rotating triangle using OpenGL 4
-
-<a href="url"><img src="http://i.imgur.com/TwaAkzc.png" width="200" ></a> 
+A rotating triangle using OpenGL 4, <a href="url"><img src="http://i.imgur.com/TwaAkzc.png" width="100" ></a> 
 
 ### [GL4 Globe](https://github.com/elect86/helloTriangle/blob/master/HelloTriangle/src/gl4/globe)
 
-A rotating globe with a texture using OpenGL 4
-
-<a href="url"><img src="http://i.imgur.com/0NqgdcP.png" width="200" ></a> 
+A rotating globe with a texture using OpenGL 4, <a href="url"><img src="http://i.imgur.com/0NqgdcP.png" width="100" ></a> 
 
 ### [GL3 Hello Triangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTriangle) 
 
-A rotating triangle using OpenGL 3
-
-<a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="200" ></a>
+A rotating triangle using OpenGL 3, <a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="100" ></a>
 
 ### [GL3 Hello Texture](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTexture)
 
-A rotating square with a texture using GL3
-
-<a href="url"><img src="http://i.imgur.com/HbnqqX5.png" width="200" ></a> 
+A rotating square with a texture using GL3, <a href="url"><img src="http://i.imgur.com/HbnqqX5.png" width="100" ></a> 
 
 # Quick start:
 
