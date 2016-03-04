@@ -13,8 +13,12 @@ import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.KeyListener;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.GL;
+import static com.jogamp.opengl.GL.GL_DONT_CARE;
+import static com.jogamp.opengl.GL.GL_FLOAT;
 import static com.jogamp.opengl.GL.GL_MAP_INVALIDATE_BUFFER_BIT;
 import static com.jogamp.opengl.GL.GL_MAP_WRITE_BIT;
+import static com.jogamp.opengl.GL2ES2.GL_DEBUG_SEVERITY_HIGH;
+import static com.jogamp.opengl.GL2ES2.GL_DEBUG_SEVERITY_MEDIUM;
 import static com.jogamp.opengl.GL2ES3.GL_UNIFORM_BUFFER;
 import static com.jogamp.opengl.GL2ES3.GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT;
 import com.jogamp.opengl.GL4;
@@ -78,7 +82,6 @@ public class Globe implements GLEventListener, KeyListener {
         glWindow.setTitle(title);
         glWindow.setContextCreationFlags(GLContext.CTX_OPTION_DEBUG);
         glWindow.setVisible(true);
-        glWindow.getContext().addGLDebugListener(new GlDebugOutput());
 
         Globe globe = new Globe();
         glWindow.addGLEventListener(globe);
@@ -105,7 +108,7 @@ public class Globe implements GLEventListener, KeyListener {
     private FloatBuffer vertexBuffer;
     private ShortBuffer elementBuffer;
     private ByteBuffer transformPointer;
-    private int program;
+    private int programName;
     private final String SHADERS_ROOT = "src/gl4/globe/shaders";
     private final String SHADERS_NAME = "globe";
     private final String TEXTURE_ROOT = "src/gl4/globe/asset";
@@ -131,6 +134,8 @@ public class Globe implements GLEventListener, KeyListener {
 
         GL4 gl4 = drawable.getGL().getGL4();
 
+        initDebug(gl4);
+
         initBuffers(gl4);
 
         initVertexArray(gl4);
@@ -148,6 +153,35 @@ public class Globe implements GLEventListener, KeyListener {
         gl4.glBindBuffer(GL_UNIFORM_BUFFER, bufferName.get(Buffer.TRANSFORM));
         transformPointer = gl4.glMapBufferRange(GL_UNIFORM_BUFFER, 0, 16 * Float.BYTES, GL_MAP_WRITE_BIT
                 | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    }
+
+    private void initDebug(GL4 gl4) {
+
+        glWindow.getContext().addGLDebugListener(new GlDebugOutput());
+        // Turn off all the debug
+        gl4.glDebugMessageControl(
+                GL_DONT_CARE, // source
+                GL_DONT_CARE, // type
+                GL_DONT_CARE, // severity
+                0, // count
+                null, // id
+                false); // enabled
+        // Turn on all OpenGL Errors, shader compilation/linking errors, or highly-dangerous undefined behavior 
+        gl4.glDebugMessageControl(
+                GL_DONT_CARE, // source
+                GL_DONT_CARE, // type
+                GL_DEBUG_SEVERITY_HIGH, // severity
+                0, // count
+                null, // id
+                true); // enabled
+        // Turn on all major performance warnings, shader compilation/linking warnings or the use of deprecated functions
+        gl4.glDebugMessageControl(
+                GL_DONT_CARE, // source
+                GL_DONT_CARE, // type
+                GL_DEBUG_SEVERITY_MEDIUM, // severity
+                0, // count
+                null, // id
+                true); // enabled
     }
 
     private void initBuffers(GL4 gl4) {
@@ -247,22 +281,19 @@ public class Globe implements GLEventListener, KeyListener {
 
         gl4.glCreateVertexArrays(1, vertexArrayName);
 
-        gl4.glBindVertexArray(vertexArrayName.get(0));
-        {
-            gl4.glVertexArrayAttribBinding(vertexArrayName.get(0), Semantic.Attr.POSITION, Semantic.Stream._0);
-            gl4.glVertexArrayAttribFormat(vertexArrayName.get(0), Semantic.Attr.POSITION, 3, GL_FLOAT, false, 0);
-            gl4.glEnableVertexArrayAttrib(vertexArrayName.get(0), Semantic.Attr.POSITION);
+        gl4.glVertexArrayAttribBinding(vertexArrayName.get(0), Semantic.Attr.POSITION, Semantic.Stream._0);
+        gl4.glVertexArrayAttribBinding(vertexArrayName.get(0), Semantic.Attr.TEXCOORD, Semantic.Stream._0);
 
-            gl4.glVertexArrayAttribBinding(vertexArrayName.get(0), Semantic.Attr.TEXCOORD, Semantic.Stream._0);
-            gl4.glVertexArrayAttribFormat(vertexArrayName.get(0), Semantic.Attr.TEXCOORD, 2, GL_FLOAT, false,
-                    3 * Float.BYTES);
-            gl4.glEnableVertexArrayAttrib(vertexArrayName.get(0), Semantic.Attr.TEXCOORD);
+        gl4.glVertexArrayAttribFormat(vertexArrayName.get(0), Semantic.Attr.POSITION, 3, GL_FLOAT, false, 0);
+        gl4.glVertexArrayAttribFormat(vertexArrayName.get(0), Semantic.Attr.TEXCOORD, 2, GL_FLOAT, false,
+                3 * Float.BYTES);
+        
+        gl4.glEnableVertexArrayAttrib(vertexArrayName.get(0), Semantic.Attr.POSITION);
+        gl4.glEnableVertexArrayAttrib(vertexArrayName.get(0), Semantic.Attr.TEXCOORD);
 
-            gl4.glVertexArrayElementBuffer(vertexArrayName.get(0), bufferName.get(Buffer.ELEMENT));
-            gl4.glVertexArrayVertexBuffer(vertexArrayName.get(0), Semantic.Stream._0, bufferName.get(Buffer.VERTEX), 0,
-                    (3 + 2) * Float.BYTES);
-        }
-        gl4.glBindVertexArray(0);
+        gl4.glVertexArrayElementBuffer(vertexArrayName.get(0), bufferName.get(Buffer.ELEMENT));
+        gl4.glVertexArrayVertexBuffer(vertexArrayName.get(0), Semantic.Stream._0, bufferName.get(Buffer.VERTEX), 0,
+                (3 + 2) * Float.BYTES);
     }
 
     private void initTexture(GL4 gl4) {
@@ -330,7 +361,7 @@ public class Globe implements GLEventListener, KeyListener {
 
         shaderProgram.init(gl4);
 
-        program = shaderProgram.program();
+        programName = shaderProgram.program();
 
         shaderProgram.link(gl4, System.out);
     }
@@ -358,14 +389,23 @@ public class Globe implements GLEventListener, KeyListener {
             transformPointer.asFloatBuffer().put(mvp);
         }
 
-        gl4.glUseProgram(program);
+        gl4.glUseProgram(programName);
         gl4.glBindVertexArray(vertexArrayName.get(0));
-        gl4.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM0, bufferName.get(Buffer.TRANSFORM));
+        gl4.glBindBufferBase(
+                GL_UNIFORM_BUFFER, // target
+                Semantic.Uniform.TRANSFORM0, // index 
+                bufferName.get(Buffer.TRANSFORM)); // buffer
 
-        gl4.glBindTextureUnit(Semantic.Sampler.DIFFUSE, textureName.get(0));
+        gl4.glBindTextureUnit(
+                Semantic.Sampler.DIFFUSE, // texture unit
+                textureName.get(0)); // texture name
         gl4.glBindSampler(Semantic.Sampler.DIFFUSE, samplerName.get(0));
 
-        gl4.glDrawElements(GL_TRIANGLES, elementBuffer.capacity(), GL_UNSIGNED_SHORT, 0);
+        gl4.glDrawElements(
+                GL_TRIANGLES, // primitive mode
+                elementBuffer.capacity(), // element count
+                GL_UNSIGNED_SHORT, // element type
+                0); // element offset
     }
 
     @Override
@@ -384,7 +424,7 @@ public class Globe implements GLEventListener, KeyListener {
 
         gl4.glUnmapNamedBuffer(bufferName.get(Buffer.TRANSFORM));
 
-        gl4.glDeleteProgram(program);
+        gl4.glDeleteProgram(programName);
         gl4.glDeleteVertexArrays(1, vertexArrayName);
         gl4.glDeleteBuffers(Buffer.MAX, bufferName);
         gl4.glDeleteTextures(1, textureName);
