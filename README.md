@@ -1,37 +1,22 @@
 This project, in pure jogl, contains the following:
 
-### [GL3 HelloTriangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTriangle) 
+### [GL4 Hello Triangle](https://github.com/elect86/helloTriangle/blob/master/HelloTriangle/src/gl4/helloTriangle/HelloTriangle.java)
 
-<a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="200" ></a>
-
-A rotating triangle featuring: 
-- GL3
-- pure newt
-- glWindow options
-- animator
-- indexed drawing
-- dynamic attribute binding
-- dynamic frag data binding
-- interleaved data
-- vertex array object (VAO)
-- vertex buffer object (VBO) with normalization on one attribute
-- index buffer object (IBO) with shorts
-- uniform
-- glsl program (with specific suffix) jogl util 
-- matrix jogl util 
-- gl error check
-- key listener 
-- right way to dispose
-
-### [GL3 HelloTexture](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTexture)
-
-<a href="url"><img src="http://i.imgur.com/HbnqqX5.png" width="200" ></a> 
-
-A rotating square with a texture
+<a href="url"><img src="http://i.imgur.com/TwaAkzc.png" width="200" ></a> 
 
 ### [GL4 Globe](https://github.com/elect86/helloTriangle/blob/master/HelloTriangle/src/gl4/globe/Globe.java)
 
 <a href="url"><img src="http://i.imgur.com/0NqgdcP.png" width="200" ></a> 
+
+### [GL3 Hello Triangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTriangle/HelloTriangle.java) 
+
+<a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="200" ></a>
+
+### [GL3 Hello Texture](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTexture/HelloTexture.java)
+
+<a href="url"><img src="http://i.imgur.com/HbnqqX5.png" width="200" ></a> 
+
+A rotating square with a texture
 
 Quick start:
 
