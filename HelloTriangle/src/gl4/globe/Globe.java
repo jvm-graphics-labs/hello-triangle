@@ -110,7 +110,11 @@ public class Globe implements GLEventListener, KeyListener {
     private final String SHADERS_NAME = "globe";
     private final String TEXTURE_ROOT = "src/gl4/globe/asset";
     private final String TEXTURE_NAME = "globe.png";
-    private float[] yRotazion = new float[16], lookAt = new float[16], projection = new float[16];
+    private float[] yRotazion = new float[16], lookAt = new float[16], projection = new float[16], mvp = new float[16];
+    private float[] eye = new float[]{0, 0, 3};
+    private float[] center = new float[]{0, 0, 0};
+    private float[] up = new float[]{0, 1, 0};
+    private float aspect;
     private long start, now;
     /**
      * https://jogamp.org/bugzilla/show_bug.cgi?id=1287
@@ -154,28 +158,25 @@ public class Globe implements GLEventListener, KeyListener {
 
         if (!bug1287) {
 
-            gl4.glNamedBufferStorage(bufferName.get(Buffer.VERTEX), vertexBuffer.capacity() * Float.BYTES,
-                    vertexBuffer, GL_STATIC_DRAW);
+            gl4.glNamedBufferStorage(bufferName.get(Buffer.VERTEX), vertexBuffer.capacity() * Float.BYTES, vertexBuffer,
+                    GL_STATIC_DRAW);
 
             gl4.glNamedBufferStorage(bufferName.get(Buffer.ELEMENT), elementBuffer.capacity() * Short.BYTES,
                     elementBuffer, GL_STATIC_DRAW);
 
-            gl4.glNamedBufferStorage(bufferName.get(Buffer.TRANSFORM), 16 * Float.BYTES, null,
-                    GL_MAP_WRITE_BIT);
+            gl4.glNamedBufferStorage(bufferName.get(Buffer.TRANSFORM), 16 * Float.BYTES, null, GL_MAP_WRITE_BIT);
 
         } else {
             // vertices
             gl4.glBindBuffer(GL_ARRAY_BUFFER, bufferName.get(Buffer.VERTEX));
             {
-                gl4.glBufferStorage(GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer,
-                        0);
+                gl4.glBufferStorage(GL_ARRAY_BUFFER, vertexBuffer.capacity() * Float.BYTES, vertexBuffer, 0);
             }
             gl4.glBindBuffer(GL_ARRAY_BUFFER, 0);
             // elements
             gl4.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferName.get(Buffer.ELEMENT));
             {
-                gl4.glBufferStorage(GL_ELEMENT_ARRAY_BUFFER, elementBuffer.capacity() * Short.BYTES,
-                        elementBuffer, 0);
+                gl4.glBufferStorage(GL_ELEMENT_ARRAY_BUFFER, elementBuffer.capacity() * Short.BYTES, elementBuffer, 0);
             }
             gl4.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             // transform
@@ -185,8 +186,10 @@ public class Globe implements GLEventListener, KeyListener {
                 gl4.glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, uniformBufferOffset);
                 int uniformBlockSize = Math.max(16 * Float.BYTES, uniformBufferOffset.get(0));
 
-                gl4.glBufferStorage(GL_UNIFORM_BUFFER, uniformBlockSize, null, GL_MAP_WRITE_BIT
-                        | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+                gl4.glBufferStorage(GL_UNIFORM_BUFFER, uniformBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT
+                        | GL_MAP_COHERENT_BIT);
+
+                BufferUtils.destroyDirectBuffer(uniformBufferOffset);
             }
             gl4.glBindBuffer(GL_UNIFORM_BUFFER, 0);
         }
@@ -246,21 +249,18 @@ public class Globe implements GLEventListener, KeyListener {
 
         gl4.glBindVertexArray(vertexArrayName.get(0));
         {
-            gl4.glVertexArrayAttribBinding(vertexArrayName.get(0), Semantic.Attr.POSITION,
-                    Semantic.Stream._0);
-            gl4.glVertexArrayAttribFormat(vertexArrayName.get(0), Semantic.Attr.POSITION, 3, GL_FLOAT,
-                    false, 0);
+            gl4.glVertexArrayAttribBinding(vertexArrayName.get(0), Semantic.Attr.POSITION, Semantic.Stream._0);
+            gl4.glVertexArrayAttribFormat(vertexArrayName.get(0), Semantic.Attr.POSITION, 3, GL_FLOAT, false, 0);
             gl4.glEnableVertexArrayAttrib(vertexArrayName.get(0), Semantic.Attr.POSITION);
 
-            gl4.glVertexArrayAttribBinding(vertexArrayName.get(0), Semantic.Attr.TEXCOORD,
-                    Semantic.Stream._0);
-            gl4.glVertexArrayAttribFormat(vertexArrayName.get(0), Semantic.Attr.TEXCOORD, 2, GL_FLOAT,
-                    false, 3 * Float.BYTES);
+            gl4.glVertexArrayAttribBinding(vertexArrayName.get(0), Semantic.Attr.TEXCOORD, Semantic.Stream._0);
+            gl4.glVertexArrayAttribFormat(vertexArrayName.get(0), Semantic.Attr.TEXCOORD, 2, GL_FLOAT, false,
+                    3 * Float.BYTES);
             gl4.glEnableVertexArrayAttrib(vertexArrayName.get(0), Semantic.Attr.TEXCOORD);
 
             gl4.glVertexArrayElementBuffer(vertexArrayName.get(0), bufferName.get(Buffer.ELEMENT));
-            gl4.glVertexArrayVertexBuffer(vertexArrayName.get(0), Semantic.Stream._0,
-                    bufferName.get(Buffer.VERTEX), 0, (3 + 2) * Float.BYTES);
+            gl4.glVertexArrayVertexBuffer(vertexArrayName.get(0), Semantic.Stream._0, bufferName.get(Buffer.VERTEX), 0,
+                    (3 + 2) * Float.BYTES);
         }
         gl4.glBindVertexArray(0);
     }
@@ -270,8 +270,7 @@ public class Globe implements GLEventListener, KeyListener {
         try {
             File textureFile = new File(TEXTURE_ROOT + "/" + TEXTURE_NAME);
 
-            TextureData textureData = TextureIO.newTextureData(gl4.getGLProfile(), textureFile, false,
-                    TextureIO.PNG);
+            TextureData textureData = TextureIO.newTextureData(gl4.getGLProfile(), textureFile, false, TextureIO.PNG);
 
             gl4.glCreateTextures(GL_TEXTURE_2D, 1, textureName);
 
@@ -288,7 +287,7 @@ public class Globe implements GLEventListener, KeyListener {
                     0, 0, // offset
                     textureData.getWidth(), textureData.getHeight(), // size
                     textureData.getPixelFormat(), textureData.getPixelType(), // format and type
-                    textureData.getBuffer());
+                    textureData.getBuffer()); // data
 
         } catch (IOException ex) {
             Logger.getLogger(Globe.class.getName()).log(Level.SEVERE, null, ex);
@@ -320,10 +319,10 @@ public class Globe implements GLEventListener, KeyListener {
 
     private void initProgram(GL4 gl4) {
 
-        ShaderCode vertShader = ShaderCode.create(gl4, GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT,
-                null, SHADERS_NAME, "vert", null, true);
-        ShaderCode fragShader = ShaderCode.create(gl4, GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT,
-                null, SHADERS_NAME, "frag", null, true);
+        ShaderCode vertShader = ShaderCode.create(gl4, GL_VERTEX_SHADER, this.getClass(), SHADERS_ROOT, null,
+                SHADERS_NAME, "vert", null, true);
+        ShaderCode fragShader = ShaderCode.create(gl4, GL_FRAGMENT_SHADER, this.getClass(), SHADERS_ROOT, null,
+                SHADERS_NAME, "frag", null, true);
 
         ShaderProgram shaderProgram = new ShaderProgram();
         shaderProgram.add(vertShader);
@@ -334,6 +333,47 @@ public class Globe implements GLEventListener, KeyListener {
         program = shaderProgram.program();
 
         shaderProgram.link(gl4, System.out);
+    }
+
+    @Override
+    public void display(GLAutoDrawable drawable) {
+//        System.out.println("display");
+
+        GL4 gl4 = drawable.getGL().getGL4();
+
+        gl4.glClearBufferfv(GL_COLOR, 0, clearColor);
+        gl4.glClearBufferfv(GL_DEPTH, 0, clearDepth);
+
+        {
+            now = System.currentTimeMillis();
+            float diff = (float) (now - start) / 1000;
+
+            FloatUtil.makeLookAt(lookAt, 0, eye, 0, center, 0, up, 0, yRotazion);
+            yRotazion = FloatUtil.makeRotationEuler(yRotazion, 0, 0, -diff, 0);
+            FloatUtil.makePerspective(projection, 0, true, (float) Math.PI * 0.25f, aspect, 0.1f, 100f);
+
+            FloatUtil.multMatrix(projection, lookAt, mvp); // mvp = projection * lookAt
+            FloatUtil.multMatrix(mvp, yRotazion); // mvp *= yRotation
+
+            transformPointer.asFloatBuffer().put(mvp);
+        }
+
+        gl4.glUseProgram(program);
+        gl4.glBindVertexArray(vertexArrayName.get(0));
+        gl4.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM0, bufferName.get(Buffer.TRANSFORM));
+
+        gl4.glBindTextureUnit(Semantic.Sampler.DIFFUSE, textureName.get(0));
+        gl4.glBindSampler(Semantic.Sampler.DIFFUSE, samplerName.get(0));
+
+        gl4.glDrawElements(GL_TRIANGLES, elementBuffer.capacity(), GL_UNSIGNED_SHORT, 0);
+    }
+
+    @Override
+    public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
+        System.out.println("reshape");
+        GL4 gl4 = drawable.getGL().getGL4();
+        gl4.glViewport(x, y, width, height);
+        aspect = (float) windowSize.getWidth() / windowSize.getHeight();
     }
 
     @Override
@@ -354,54 +394,11 @@ public class Globe implements GLEventListener, KeyListener {
         BufferUtils.destroyDirectBuffer(bufferName);
         BufferUtils.destroyDirectBuffer(textureName);
         BufferUtils.destroyDirectBuffer(samplerName);
-        
+
         BufferUtils.destroyDirectBuffer(clearColor);
         BufferUtils.destroyDirectBuffer(clearDepth);
 
         System.exit(0);
-    }
-
-    @Override
-    public void display(GLAutoDrawable drawable) {
-//        System.out.println("display");
-
-        GL4 gl4 = drawable.getGL().getGL4();
-
-        gl4.glClearBufferfv(GL_COLOR, 0, clearColor);
-        gl4.glClearBufferfv(GL_DEPTH, 0, clearDepth);
-
-        {
-            now = System.currentTimeMillis();
-            float diff = (float) (now - start) / 1000;
-
-            FloatUtil.makeLookAt(lookAt, 0, new float[]{0, 0, 3}, 0, new float[]{0, 0, 0}, 0,
-                    new float[]{0, 1, 0}, 0, yRotazion);
-            yRotazion = FloatUtil.makeRotationEuler(yRotazion, 0, 0, -diff, 0);
-            FloatUtil.makePerspective(projection, 0, true, (float) Math.PI * 0.25f,
-                    (float) windowSize.getWidth() / windowSize.getHeight(), 0.1f, 100f);
-
-            FloatUtil.multMatrix(projection, lookAt);
-            FloatUtil.multMatrix(projection, yRotazion);
-
-            transformPointer.asFloatBuffer().put(projection);
-        }
-
-        gl4.glUseProgram(program);
-        gl4.glBindVertexArray(vertexArrayName.get(0));
-        gl4.glBindBufferBase(GL_UNIFORM_BUFFER, Semantic.Uniform.TRANSFORM0, 
-                bufferName.get(Buffer.TRANSFORM));
-
-        gl4.glBindTextureUnit(Semantic.Sampler.DIFFUSE, textureName.get(0));
-        gl4.glBindSampler(Semantic.Sampler.DIFFUSE, samplerName.get(0));
-
-        gl4.glDrawElements(GL_TRIANGLES, elementBuffer.capacity(), GL_UNSIGNED_SHORT, 0);
-    }
-
-    @Override
-    public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-        System.out.println("reshape");
-        GL4 gl4 = drawable.getGL().getGL4();
-        gl4.glViewport(x, y, width, height);
     }
 
     @Override
