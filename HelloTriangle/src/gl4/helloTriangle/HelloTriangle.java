@@ -16,6 +16,7 @@ import com.jogamp.opengl.GL4;
 import static com.jogamp.opengl.GL4.*;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.math.FloatUtil;
@@ -56,7 +57,7 @@ public class HelloTriangle implements GLEventListener, KeyListener {
         glWindow.setPointerVisible(true);
         glWindow.confinePointer(false);
         glWindow.setTitle("Hello Triangle");
-
+        glWindow.setContextCreationFlags(GLContext.CTX_OPTION_DEBUG);
         glWindow.setVisible(true);
 
         HelloTriangle helloTriangle = new HelloTriangle();
@@ -100,7 +101,7 @@ public class HelloTriangle implements GLEventListener, KeyListener {
     private long start, now;
     private IntBuffer bufferName = GLBuffers.newDirectIntBuffer(Buffer.MAX);
     private IntBuffer vertexArrayName = GLBuffers.newDirectIntBuffer(1);
-    private int programName, modelToClipMatrixUL;
+    private int programName;
     private FloatBuffer clearColor = GLBuffers.newDirectFloatBuffer(new float[]{1.0f, 0.5f, 0.0f, 1.0f});
     private FloatBuffer clearDepth = GLBuffers.newDirectFloatBuffer(new float[]{1.0f});
     private ByteBuffer transformPointer;
