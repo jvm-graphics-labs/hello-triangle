@@ -1,7 +1,7 @@
 /*
  * Vertex shader.
  */
-#version 400
+#version 330
 
 // Incoming vertex position, Model Space.
 in vec2 position;

@@ -2,7 +2,7 @@
  * Fragment shader.
  */
 
-#version 400
+#version 330
 
 // Incoming interpolated (between vertices) texture coordinates.
 in vec2 interpolatedTexCoord;
