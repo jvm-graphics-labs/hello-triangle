@@ -473,7 +473,8 @@ public class HelloTexture implements GLEventListener, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            HelloTexture.animator.stop();
+            animator.stop();
+            glWindow.destroy();
         }
     }
 

@@ -335,7 +335,8 @@ public class HelloTriangle implements GLEventListener, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            HelloTriangle.animator.stop();
+            animator.stop();
+            glWindow.destroy();
         }
     }
 

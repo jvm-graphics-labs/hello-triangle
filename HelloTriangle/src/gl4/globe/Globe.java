@@ -444,7 +444,8 @@ public class Globe implements GLEventListener, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            Globe.animator.stop();
+            animator.stop();
+            glWindow.destroy();
         }
     }
 
