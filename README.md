@@ -4,7 +4,7 @@ This project, in pure jogl, contains the following:
 
 A rotating triangle using OpenGL 4, <a href="url"><img src="http://i.imgur.com/TwaAkzc.png" width="100" ></a> 
 
-### [GL4 Globe](https://github.com/elect86/helloTriangle/blob/master/HelloTriangle/src/gl4/globe)
+### [GL4 Hello Globe](https://github.com/elect86/helloTriangle/blob/master/HelloTriangle/src/gl4/globe)
 
 A rotating globe with a texture using OpenGL 4, <a href="url"><img src="http://i.imgur.com/0NqgdcP.png" width="100" ></a> 
 
