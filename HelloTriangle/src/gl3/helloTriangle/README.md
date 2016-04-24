@@ -85,10 +85,7 @@ How many vertices can you store? You cannot know a priori. But you will hit the 
 ```java
 private int programName, modelToClipMatrixUL;
 private final String SHADERS_ROOT = "/shaders";
-/**
-* Use pools, you don't want to create and let them cleaned by the garbage
-* collector continuously in the display() method.
-*/
+
 private float[] scale = new float[16];
 private float[] zRotazion = new float[16];
 private float[] modelToClip = new float[16];
@@ -170,53 +167,32 @@ Here the vertex and the element array buffer objects get initialized. We generat
 
 ```java
     private void initVertexArray(GL3 gl3) {
-        /**
-         * Let's create the VAO and save in it all the attributes properties.
-         */
+    
         gl3.glGenVertexArrays(1, vertexArrayName);
         gl3.glBindVertexArray(vertexArrayName.get(0));
         {
-            /**
-             * VBO is not part of VAO, we need it to bind it only when we call
-             * glEnableVertexAttribArray and glVertexAttribPointer, so that VAO
-             * knows which VBO the attributes refer to, then we can unbind it.
-             */
+        
             gl3.glBindBuffer(GL_ARRAY_BUFFER, bufferName.get(Buffer.VERTEX));
             {
-                /**
-                 * This is the vertex attribute layout:
-                 *
-                 * | position x | position y | color R | color G | color B |
-                 */
                 int stride = (2 + 3) * Float.BYTES;
                 int offset = 0 * Float.BYTES;
-                /**
-                 * We draw in 2D on the xy plane, so we need just two
-                 * coordinates for the position, it will be padded to vec4 as
-                 * (x, y, 0, 1) in the vertex shader.
-                 */
+                
                 gl3.glEnableVertexAttribArray(Semantic.Attr.POSITION);
                 gl3.glVertexAttribPointer(Semantic.Attr.POSITION, 2, GL_FLOAT, false, stride, offset);
-                /**
-                 * Color needs three coordinates. Vec3 color will be padded to
-                 * (x, y, z, 1) in the fragment shader.
-                 */
+                
                 offset = 2 * Float.BYTES;
                 gl3.glEnableVertexAttribArray(Semantic.Attr.COLOR);
                 gl3.glVertexAttribPointer(Semantic.Attr.COLOR, 3, GL_FLOAT, false, stride, offset);
             }
             gl3.glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-            /**
-             * Ibo is part of the VAO, so we need to bind it and leave it bound.
-             */
             gl3.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferName.get(Buffer.ELEMENT));
         }
         gl3.glBindVertexArray(0);
 
         checkError(gl3, "initVao");
     }
-    ```
+```
 
     
 The Vertex Array is one object that store vertices properties and binding in order to avoid the users type all those stuff continuously in the render loop. `glGenVertexArrays` generates the VAO and `glBindVertexArray` binds it. From this point on, we will modify the VAO status. Vertex buffers are not part of vertex array, so we need it to bind it only when we call`glEnableVertexAttribArray` and `glVertexAttribPointer`, so that VAO saves which vertex attributes are enabled, their layout and which vertex buffer they refer to. After that, we can unbind the VBO.
@@ -224,7 +200,8 @@ Since our layout (for each vertex) is the following:
     
 [position x | position y | color R | color G | color B]
     
-We have to enable the position attribute with `glEnableVertexAttribArray(Semantic.Attr.POSITION)` and set the layout with `glVertexAttribPointer(Semantic.Attr.POSITION, 2, GL_FLOAT, false, stride, offset);` where `Semantic.Attr.POSITION` is the index of the vertex attribute to define, `2` is the number of component (x, y), `GL_FLOAT` is the type of data we are passing, `false` tell OpenGL to not normalized it, `stride` is the total size of the vertex, that is `(2 + 3) * Float.BYTES;` and offset is the offset (in bytes) of the `Semantic.Attr.POSITION` vertex attribute inside each vertex.
+We have to enable the position attribute with `glEnableVertexAttribArray(Semantic.Attr.POSITION)` and set the layout with `glVertexAttribPointer(Semantic.Attr.POSITION, 2, GL_FLOAT, false, stride, offset);` where `Semantic.Attr.POSITION` is the index of the vertex attribute to define, `2` is the number of component (x, y), `GL_FLOAT` is the type of data we are passing, `false` tell OpenGL to not normalized it, `stride` is the total size of the vertex, that is `(2 + 3) * Float.BYTES;` and offset is the offset (in bytes) of the `Semantic.Attr.POSITION` vertex attribute inside each vertex. 
+How will OpenGL know which VBO shall it fetch the data from? The one bound at `GL_ARRAY_BUFFER` at the moment you call `glVertexAttribPointer` is the answer.
 Then, we do the same for the `Semantic.Attr.COLOR`, passing 3 instead 2 (r, g, b) and `2 * Float.BYTES` as offset because the color attribute comes after the position.
 The element array buffer instead is part of the VAO, so we have to bind it.
 Now we have terminate to set up our VAO and can finally unbind it with `glBindVertexArray(0);`.
