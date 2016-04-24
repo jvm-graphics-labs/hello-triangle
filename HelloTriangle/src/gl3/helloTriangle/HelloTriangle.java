@@ -97,10 +97,6 @@ public class HelloTriangle implements GLEventListener, KeyListener {
     private IntBuffer bufferName = GLBuffers.newDirectIntBuffer(Buffer.MAX);
     private IntBuffer vertexArrayName = GLBuffers.newDirectIntBuffer(1);
     private int programName, modelToClipMatrixUL;
-    /**
-     * Use pools, you don't want to create and let them cleaned by the garbage
-     * collector continuously in the display() method.
-     */
     private float[] scale = new float[16], zRotazion = new float[16], modelToClip = new float[16];
     private long start, now;
 
@@ -149,46 +145,24 @@ public class HelloTriangle implements GLEventListener, KeyListener {
     }
 
     private void initVertexArray(GL3 gl3) {
-        /**
-         * Let's create the VAO and save in it all the attributes properties.
-         */
+        
         gl3.glGenVertexArrays(1, vertexArrayName);
         gl3.glBindVertexArray(vertexArrayName.get(0));
         {
-            /**
-             * VBO is not part of VAO, we need it to bind it only when we call
-             * glEnableVertexAttribArray and glVertexAttribPointer, so that VAO
-             * knows which VBO the attributes refer to, then we can unbind it.
-             */
             gl3.glBindBuffer(GL_ARRAY_BUFFER, bufferName.get(Buffer.VERTEX));
             {
-                /**
-                 * This is the vertex attribute layout:
-                 *
-                 * | position x | position y | color R | color G | color B |
-                 */
                 int stride = (2 + 3) * Float.BYTES;
                 int offset = 0 * Float.BYTES;
-                /**
-                 * We draw in 2D on the xy plane, so we need just two
-                 * coordinates for the position, it will be padded to vec4 as
-                 * (x, y, 0, 1) in the vertex shader.
-                 */
+             
                 gl3.glEnableVertexAttribArray(Semantic.Attr.POSITION);
                 gl3.glVertexAttribPointer(Semantic.Attr.POSITION, 2, GL_FLOAT, false, stride, offset);
-                /**
-                 * Color needs three coordinates. Vec3 color will be padded to
-                 * (x, y, z, 1) in the fragment shader.
-                 */
+             
                 offset = 2 * Float.BYTES;
                 gl3.glEnableVertexAttribArray(Semantic.Attr.COLOR);
                 gl3.glVertexAttribPointer(Semantic.Attr.COLOR, 3, GL_FLOAT, false, stride, offset);
             }
             gl3.glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-            /**
-             * Ibo is part of the VAO, so we need to bind it and leave it bound.
-             */
             gl3.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferName.get(Buffer.ELEMENT));
         }
         gl3.glBindVertexArray(0);
