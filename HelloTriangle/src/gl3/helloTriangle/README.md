@@ -1,4 +1,4 @@
-# Explanation
+# Wiki
 
 The `main` function initializes different parameters and instantiates the `HelloTriangle` class
 ```java
