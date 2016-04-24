@@ -217,13 +217,14 @@ Here the vertex and the element array buffer objects get initialized. We generat
         checkError(gl3, "initVao");
     }
     ```
+
     
-    The Vertex Array is one object that store vertices properties and binding in order to avoid the users type all those stuff continuously in the render loop. `glGenVertexArrays` generates the VAO and `glBindVertexArray` binds it. From this point on, we will modify the VAO status. Vertex buffers are not part of vertex array, so we need it to bind it only when we call`glEnableVertexAttribArray` and `glVertexAttribPointer`, so that VAO saves which vertex attributes are enabled, their layout and which vertex buffer they refer to. After that, we can unbind the VBO.
-    Since our layout (for each vertex) is the following:
+The Vertex Array is one object that store vertices properties and binding in order to avoid the users type all those stuff continuously in the render loop. `glGenVertexArrays` generates the VAO and `glBindVertexArray` binds it. From this point on, we will modify the VAO status. Vertex buffers are not part of vertex array, so we need it to bind it only when we call`glEnableVertexAttribArray` and `glVertexAttribPointer`, so that VAO saves which vertex attributes are enabled, their layout and which vertex buffer they refer to. After that, we can unbind the VBO.
+Since our layout (for each vertex) is the following:
     
-    [position x | position y | color R | color G | color B]
+[position x | position y | color R | color G | color B]
     
-    We have to enable the position attribute with `glEnableVertexAttribArray(Semantic.Attr.POSITION)` and set the layout with `glVertexAttribPointer(Semantic.Attr.POSITION, 2, GL_FLOAT, false, stride, offset);` where `Semantic.Attr.POSITION` is the index of the vertex attribute to define, `2` is the number of component (x, y), `GL_FLOAT` is the type of data we are passing, `false` tell OpenGL to not normalized it, `stride` is the total size of the vertex, that is `(2 + 3) * Float.BYTES;` and offset is the offset (in bytes) of the `Semantic.Attr.POSITION` vertex attribute inside each vertex.
-    Then, we do the same for the `Semantic.Attr.COLOR`, passing 3 instead 2 (r, g, b) and `2 * Float.BYTES` as offset because the color attribute comes after the position.
-    The element array buffer instead is part of the VAO, so we have to bind it.
-    Now we have terminate to set up our VAO and can finally unbind it with `glBindVertexArray(0);`.
+We have to enable the position attribute with `glEnableVertexAttribArray(Semantic.Attr.POSITION)` and set the layout with `glVertexAttribPointer(Semantic.Attr.POSITION, 2, GL_FLOAT, false, stride, offset);` where `Semantic.Attr.POSITION` is the index of the vertex attribute to define, `2` is the number of component (x, y), `GL_FLOAT` is the type of data we are passing, `false` tell OpenGL to not normalized it, `stride` is the total size of the vertex, that is `(2 + 3) * Float.BYTES;` and offset is the offset (in bytes) of the `Semantic.Attr.POSITION` vertex attribute inside each vertex.
+Then, we do the same for the `Semantic.Attr.COLOR`, passing 3 instead 2 (r, g, b) and `2 * Float.BYTES` as offset because the color attribute comes after the position.
+The element array buffer instead is part of the VAO, so we have to bind it.
+Now we have terminate to set up our VAO and can finally unbind it with `glBindVertexArray(0);`.
