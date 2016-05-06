@@ -1,4 +1,4 @@
-# Explanation
+# Wiki
 
 The `main` function initializes different parameters and instantiates the `HelloTriangle` class
 ```java
@@ -85,10 +85,7 @@ How many vertices can you store? You cannot know a priori. But you will hit the 
 ```java
 private int programName, modelToClipMatrixUL;
 private final String SHADERS_ROOT = "/shaders";
-/**
-* Use pools, you don't want to create and let them cleaned by the garbage
-* collector continuously in the display() method.
-*/
+
 private float[] scale = new float[16];
 private float[] zRotazion = new float[16];
 private float[] modelToClip = new float[16];
@@ -139,3 +136,72 @@ been already rendered if their depth is bigger than the one being rendered at th
 fine if you have only opaque objects, but if you have transparent ones then things get complicate and you need
 to implement specific algorithms. `System.currentTimeMillis()` stores the current time (in milliseconds) 
 inside `start`.
+
+```java
+private void initBuffers(GL3 gl3) {
+
+    FloatBuffer vertexBuffer = GLBuffers.newDirectFloatBuffer(vertexData);
+    ShortBuffer elementBuffer = GLBuffers.newDirectShortBuffer(elementData);
+
+    gl3.glGenBuffers(Buffer.MAX, bufferName);
+    gl3.glBindBuffer(GL_ARRAY_BUFFER, bufferName.get(Buffer.VERTEX));
+    {
+        gl3.glBufferData(GL_ARRAY_BUFFER, vertexSize, vertexBuffer, GL_STATIC_DRAW);
+    }
+    gl3.glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    gl3.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferName.get(Buffer.ELEMENT));
+    {
+        gl3.glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementSize, elementBuffer, GL_STATIC_DRAW);
+    }
+    gl3.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    BufferUtils.destroyDirectBuffer(vertexBuffer);
+    BufferUtils.destroyDirectBuffer(elementBuffer);
+
+    checkError(gl3, "initBuffers");
+}
+``` 
+
+Here the vertex and the element array buffer objects get initialized. We generated all the buffers with `glGenBuffers` and then bind each of them and upload the data. At the end, we have to manually destroy the direct buffers since they are allocations outside the java domain.
+
+```java
+    private void initVertexArray(GL3 gl3) {
+    
+        gl3.glGenVertexArrays(1, vertexArrayName);
+        gl3.glBindVertexArray(vertexArrayName.get(0));
+        {
+        
+            gl3.glBindBuffer(GL_ARRAY_BUFFER, bufferName.get(Buffer.VERTEX));
+            {
+                int stride = (2 + 3) * Float.BYTES;
+                int offset = 0 * Float.BYTES;
+                
+                gl3.glEnableVertexAttribArray(Semantic.Attr.POSITION);
+                gl3.glVertexAttribPointer(Semantic.Attr.POSITION, 2, GL_FLOAT, false, stride, offset);
+                
+                offset = 2 * Float.BYTES;
+                gl3.glEnableVertexAttribArray(Semantic.Attr.COLOR);
+                gl3.glVertexAttribPointer(Semantic.Attr.COLOR, 3, GL_FLOAT, false, stride, offset);
+            }
+            gl3.glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+            gl3.glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferName.get(Buffer.ELEMENT));
+        }
+        gl3.glBindVertexArray(0);
+
+        checkError(gl3, "initVao");
+    }
+```
+
+    
+The Vertex Array is one object that store vertices properties and binding in order to avoid the users type all those stuff continuously in the render loop. `glGenVertexArrays` generates the VAO and `glBindVertexArray` binds it. From this point on, we will modify the VAO status. Vertex buffers are not part of vertex array, so we need it to bind it only when we call`glEnableVertexAttribArray` and `glVertexAttribPointer`, so that VAO saves which vertex attributes are enabled, their layout and which vertex buffer they refer to. After that, we can unbind the VBO.
+Since our layout (for each vertex) is the following:
+    
+[position x | position y | color R | color G | color B]
+    
+We have to enable the position attribute with `glEnableVertexAttribArray(Semantic.Attr.POSITION)` and set the layout with `glVertexAttribPointer(Semantic.Attr.POSITION, 2, GL_FLOAT, false, stride, offset);` where `Semantic.Attr.POSITION` is the index of the vertex attribute to define, `2` is the number of component (x, y), `GL_FLOAT` is the type of data we are passing, `false` tell OpenGL to not normalized it, `stride` is the total size of the vertex, that is `(2 + 3) * Float.BYTES;` and offset is the offset (in bytes) of the `Semantic.Attr.POSITION` vertex attribute inside each vertex. 
+How will OpenGL know which VBO shall it fetch the data from? The one bound at `GL_ARRAY_BUFFER` at the moment you call `glVertexAttribPointer` is the answer.
+Then, we do the same for the `Semantic.Attr.COLOR`, passing 3 instead 2 (r, g, b) and `2 * Float.BYTES` as offset because the color attribute comes after the position.
+The element array buffer instead is part of the VAO, so we have to bind it.
+Now we have terminate to set up our VAO and can finally unbind it with `glBindVertexArray(0);`.
