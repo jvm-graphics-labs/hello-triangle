@@ -8,7 +8,7 @@ A rotating triangle using OpenGL 4, <a href="url"><img src="http://i.imgur.com/T
 
 A rotating globe with a texture using OpenGL 4, <a href="url"><img src="http://i.imgur.com/0NqgdcP.png" width="100" ></a> 
 
-### [GL3 Hello Triangle](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTriangle) 
+### [GL3 Hello Triangle (wiki -incomplete-)](https://github.com/elect86/helloTriangle/tree/master/HelloTriangle/src/gl3/helloTriangle) 
 
 A rotating triangle using OpenGL 3, <a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="100" ></a>
 
