@@ -364,6 +364,9 @@ public class Globe implements GLEventListener, KeyListener {
         programName = shaderProgram.program();
 
         shaderProgram.link(gl4, System.out);
+        
+        vertShader.destroy(gl4);
+        fragShader.destroy(gl4);
     }
 
     @Override

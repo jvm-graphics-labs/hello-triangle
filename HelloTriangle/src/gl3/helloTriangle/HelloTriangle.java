@@ -200,6 +200,9 @@ public class HelloTriangle implements GLEventListener, KeyListener {
          */
         modelToClipMatrixUL = gl3.glGetUniformLocation(programName, "modelToClipMatrix");
 
+        vertShader.destroy(gl3);
+        fragShader.destroy(gl3);
+        
         checkError(gl3, "initProgram");
     }
 

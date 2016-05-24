@@ -318,6 +318,9 @@ public class HelloTexture implements GLEventListener, KeyListener {
         modelToClipMatrixUL = gl3.glGetUniformLocation(program, "modelToClipMatrix");
         texture0UL = gl3.glGetUniformLocation(program, "texture0");
 
+        vertShader.destroy(gl3);
+        fragShader.destroy(gl3);
+        
         gl3.glUseProgram(program);
         {
             /**
