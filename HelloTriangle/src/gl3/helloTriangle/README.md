@@ -200,8 +200,19 @@ Since our layout (for each vertex) is the following:
     
 [position x | position y | color R | color G | color B]
     
-We have to enable the position attribute with `glEnableVertexAttribArray(Semantic.Attr.POSITION)` and set the layout with `glVertexAttribPointer(Semantic.Attr.POSITION, 2, GL_FLOAT, false, stride, offset);` where `Semantic.Attr.POSITION` is the index of the vertex attribute to define, `2` is the number of component (x, y), `GL_FLOAT` is the type of data we are passing, `false` tell OpenGL to not normalized it, `stride` is the total size of the vertex, that is `(2 + 3) * Float.BYTES;` and offset is the offset (in bytes) of the `Semantic.Attr.POSITION` vertex attribute inside each vertex. 
+We have to enable the position attribute with `glEnableVertexAttribArray(Semantic.Attr.POSITION)` and set the layout with `glVertexAttribPointer(Semantic.Attr.POSITION, 2, GL_FLOAT, false, stride, offset);` where:
+
+- `Semantic.Attr.POSITION` is the index of the vertex attribute to define, 
+- `2` is the number of component (x, y), 
+- `GL_FLOAT` is the type of data we are passing, 
+- `false` tell OpenGL to not normalized it, 
+- `stride` is the total size of the vertex, that is `(2 + 3) * Float.BYTES;`,
+- offset is the offset (in bytes) of the `Semantic.Attr.POSITION` vertex attribute inside each vertex
+
 How will OpenGL know which VBO shall it fetch the data from? The one bound at `GL_ARRAY_BUFFER` at the moment you call `glVertexAttribPointer` is the answer.
+
+In case you wonder if the call order between `glEnableVertexAttribArray` and `glVertexAttribPointer` may matter, don't worry, it doesn't.
+
 Then, we do the same for the `Semantic.Attr.COLOR`, passing 3 instead 2 (r, g, b) and `2 * Float.BYTES` as offset because the color attribute comes after the position.
 The element array buffer instead is part of the VAO, so we have to bind it.
 Now we have terminate to set up our VAO and can finally unbind it with `glBindVertexArray(0);`.
