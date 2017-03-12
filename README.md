@@ -8,7 +8,7 @@
     
     
 - OpenGL 3:
-    - Hello Triangle, a rotating triangle using OpenGL 3, <a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="50" ></a>, on [Simple Java](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/java/gl3/HelloTriangleSimple.java) using pure plain JOGL, without additional libraries, [Java](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/java/gl3/HelloTriangle.java) and [Kotlin](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/kotlin/gl3/helloTriangle.kt)
+    - Hello Triangle, a rotating triangle using OpenGL 3, <a href="url"><img src="http://i.imgur.com/i22AI9I.png" width="50" ></a>, [Simple Java](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/java/gl3/HelloTriangleSimple.java) using pure plain JOGL, without additional libraries, [Java](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/java/gl3/HelloTriangle.java) and [Kotlin](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/kotlin/gl3/helloTriangle.kt)
 
     - Hello Texture, a rotating square with a texture using GL3, <a href="url"><img src="http://i.imgur.com/HbnqqX5.png" width="50" ></a>, [Java](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/java/gl3/HelloTexture.java) and [Kotlin](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/kotlin/gl3/helloTexture.kt)
 
