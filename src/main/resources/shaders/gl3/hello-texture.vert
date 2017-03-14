@@ -14,8 +14,8 @@ layout (location = TEXCOORD) in vec2 texCoord;
 
 uniform GlobalMatrices
 {
-    mat4 cameraToClipMat;
-    mat4 worldToCameraMat;
+    mat4 proj;
+    mat4 view;
 };
 
 
@@ -30,7 +30,7 @@ out vec2 interpolatedTexCoord;
 void main() {
 
     // Normally gl_Position is in Clip Space and we calculate it by multiplying together all the matrices
-    gl_Position = cameraToClipMat * (worldToCameraMat * (model * vec4(position, 0, 1)));
+    gl_Position = proj * (view * (model * vec4(position, 0, 1)));
 
     // We assign the texture coordinate to the outgoing variable.
     interpolatedTexCoord = texCoord;

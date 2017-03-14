@@ -1,3 +1,5 @@
+package gl4
+
 import com.jogamp.newt.event.KeyEvent
 import com.jogamp.newt.event.KeyListener
 import com.jogamp.newt.event.WindowAdapter

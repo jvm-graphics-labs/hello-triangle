@@ -284,11 +284,7 @@ public class HelloTriangle implements GLEventListener, KeyListener {
         GL4 gl = drawable.getGL().getGL4();
 
         // ortho matrix
-        glm.ortho(-1f, 1f, -1f, 1f, 1f, -1f).to(matBuffer);
-
-        gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferName.get(Buffer.GLOBAL_MATRICES));
-        gl.glBufferSubData(GL_UNIFORM_BUFFER, 0, Mat4x4.SIZE, matBuffer);
-        gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        glm.ortho(-1f, 1f, -1f, 1f, 1f, -1f).to(globalMatricesPointer);
 
         gl.glViewport(x, y, width, height);
     }

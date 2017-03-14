@@ -170,8 +170,8 @@ class HelloTriangleK : GLEventListener, KeyListener {
 
             val uniformBufferOffset = intBufferBig(1)
             glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, uniformBufferOffset)
-            val globalBlockSize = Math.max(Mat4.SIZE * 2, uniformBufferOffset[0])
-            val modelBlockSize = Math.max(Mat4.SIZE, uniformBufferOffset[0])
+            val globalBlockSize = glm.max(Mat4.SIZE * 2, uniformBufferOffset[0])
+            val modelBlockSize = glm.max(Mat4.SIZE, uniformBufferOffset[0])
 
             glBindBuffer(GL_UNIFORM_BUFFER, bufferName[Buffer.GLOBAL_MATRICES])
             glBufferStorage(GL_UNIFORM_BUFFER, globalBlockSize.L, null, GL_MAP_WRITE_BIT or GL_MAP_PERSISTENT_BIT or GL_MAP_COHERENT_BIT)
@@ -268,11 +268,7 @@ class HelloTriangleK : GLEventListener, KeyListener {
 
     override fun reshape(drawable: GLAutoDrawable, x: Int, y: Int, width: Int, height: Int) = with(drawable.gl.gL4) {
 
-        glm.ortho(-1f, 1f, -1f, 1f, 1f, -1f) to matBuffer
-
-        glBindBuffer(GL_UNIFORM_BUFFER, bufferName[Buffer.GLOBAL_MATRICES])
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, Mat4.SIZE.L, matBuffer)
-        glBindBuffer(GL_UNIFORM_BUFFER, 0)
+        glm.ortho(-1f, 1f, -1f, 1f, 1f, -1f) to globalMatricesPointer
 
         glViewport(x, y, width, height)
     }
