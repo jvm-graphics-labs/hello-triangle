@@ -1,4 +1,3 @@
-
 package gl4;
 
 import com.jogamp.newt.event.KeyEvent;
@@ -7,37 +6,39 @@ import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.*;
+import com.jogamp.opengl.math.FloatUtil;
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.GLBuffers;
+import com.jogamp.opengl.util.glsl.ShaderCode;
+import com.jogamp.opengl.util.glsl.ShaderProgram;
 import framework.Semantic;
-import glm.mat.Mat4x4;
-import glm.vec._2.Vec2;
-import glm.vec._3.Vec3;
-import uno.debug.GlDebugOutput;
-import uno.glsl.Program;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-import static com.jogamp.opengl.GL3.*;
+import static com.jogamp.opengl.GL.*;
+import static com.jogamp.opengl.GL.GL_FLOAT;
+import static com.jogamp.opengl.GL.GL_TRIANGLES;
+import static com.jogamp.opengl.GL.GL_UNSIGNED_SHORT;
+import static com.jogamp.opengl.GL2ES2.GL_DEBUG_SEVERITY_HIGH;
+import static com.jogamp.opengl.GL2ES2.GL_DEBUG_SEVERITY_MEDIUM;
+import static com.jogamp.opengl.GL2ES3.*;
+import static com.jogamp.opengl.GL2ES3.GL_UNIFORM_BUFFER;
 import static com.jogamp.opengl.GL4.GL_MAP_COHERENT_BIT;
 import static com.jogamp.opengl.GL4.GL_MAP_PERSISTENT_BIT;
-import static glm.GlmKt.glm;
-import static uno.buffer.UtilKt.destroyBuffer;
-import static uno.buffer.UtilKt.destroyBuffers;
 
 /**
- * @author gbarbieri
+ * Created by GBarbieri on 16.03.2017.
  */
-public class HelloTriangle implements GLEventListener, KeyListener {
+public class HelloTriangleSimple implements GLEventListener, KeyListener {
 
     private static GLWindow window;
     private static Animator animator;
 
     public static void main(String[] args) {
-        new HelloTriangle().initGL();
+        new HelloTriangleSimple().initGL();
     }
 
     private float[] vertexData = {
@@ -112,7 +113,7 @@ public class HelloTriangle implements GLEventListener, KeyListener {
 
         initVertexArray(gl);
 
-        program = new Program(gl, getClass(), "shaders/gl4", "hello-triangle.vert", "hello-triangle.frag");
+        program = new Program(gl, "shaders/gl4", "hello-triangle", "hello-triangle");
 
         gl.glEnable(GL_DEPTH_TEST);
 
@@ -162,8 +163,8 @@ public class HelloTriangle implements GLEventListener, KeyListener {
             gl.glNamedBufferStorage(bufferName.get(Buffer.ELEMENT), elementBuffer.capacity() * Short.BYTES,
                     elementBuffer, GL_STATIC_DRAW);
 
-            gl.glNamedBufferStorage(bufferName.get(Buffer.GLOBAL_MATRICES), Mat4x4.SIZE * 2, null, GL_MAP_WRITE_BIT);
-            gl.glNamedBufferStorage(bufferName.get(Buffer.MODEL_MATRIX), Mat4x4.SIZE, null, GL_MAP_WRITE_BIT);
+            gl.glNamedBufferStorage(bufferName.get(Buffer.GLOBAL_MATRICES), 16 * 4 * 2, null, GL_MAP_WRITE_BIT);
+            gl.glNamedBufferStorage(bufferName.get(Buffer.MODEL_MATRIX), 16 * 4, null, GL_MAP_WRITE_BIT);
 
         } else {
 
@@ -178,8 +179,8 @@ public class HelloTriangle implements GLEventListener, KeyListener {
 
             IntBuffer uniformBufferOffset = GLBuffers.newDirectIntBuffer(1);
             gl.glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, uniformBufferOffset);
-            int globalBlockSize = glm.max(Mat4x4.SIZE * 2, uniformBufferOffset.get(0));
-            int modelBlockSize = glm.max(Mat4x4.SIZE, uniformBufferOffset.get(0));
+            int globalBlockSize = Math.max(16 * 4 * 2, uniformBufferOffset.get(0));
+            int modelBlockSize = Math.max(16 * 4, uniformBufferOffset.get(0));
 
             gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferName.get(Buffer.GLOBAL_MATRICES));
             gl.glBufferStorage(GL_UNIFORM_BUFFER, globalBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
@@ -188,24 +189,19 @@ public class HelloTriangle implements GLEventListener, KeyListener {
             gl.glBindBuffer(GL_UNIFORM_BUFFER, bufferName.get(Buffer.MODEL_MATRIX));
             gl.glBufferStorage(GL_UNIFORM_BUFFER, modelBlockSize, null, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
             gl.glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-            destroyBuffer(uniformBufferOffset);
         }
-
-        destroyBuffers(vertexBuffer, elementBuffer);
-
 
         // map the transform buffers and keep them mapped
         globalMatricesPointer = gl.glMapNamedBufferRange(
                 bufferName.get(Buffer.GLOBAL_MATRICES),
                 0,
-                Mat4x4.SIZE * 2,
+                16 * 4 * 2,
                 GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT); // flags
 
         modelMatrixPointer = gl.glMapNamedBufferRange(
                 bufferName.get(Buffer.MODEL_MATRIX),
                 0,
-                Mat4x4.SIZE,
+                16 * 4,
                 GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
     }
 
@@ -216,15 +212,14 @@ public class HelloTriangle implements GLEventListener, KeyListener {
         gl.glVertexArrayAttribBinding(vertexArrayName.get(0), Semantic.Attr.POSITION, Semantic.Stream.A);
         gl.glVertexArrayAttribBinding(vertexArrayName.get(0), Semantic.Attr.COLOR, Semantic.Stream.A);
 
-        gl.glVertexArrayAttribFormat(vertexArrayName.get(0), Semantic.Attr.POSITION, Vec2.length, GL_FLOAT, false, 0);
-        gl.glVertexArrayAttribFormat(vertexArrayName.get(0), Semantic.Attr.COLOR, Vec3.length, GL_FLOAT, false, Vec2.SIZE);
+        gl.glVertexArrayAttribFormat(vertexArrayName.get(0), Semantic.Attr.POSITION, 2, GL_FLOAT, false, 0);
+        gl.glVertexArrayAttribFormat(vertexArrayName.get(0), Semantic.Attr.COLOR, 3, GL_FLOAT, false, 2 * 4);
 
         gl.glEnableVertexArrayAttrib(vertexArrayName.get(0), Semantic.Attr.POSITION);
         gl.glEnableVertexArrayAttrib(vertexArrayName.get(0), Semantic.Attr.COLOR);
 
         gl.glVertexArrayElementBuffer(vertexArrayName.get(0), bufferName.get(Buffer.ELEMENT));
-        gl.glVertexArrayVertexBuffer(vertexArrayName.get(0), Semantic.Stream.A, bufferName.get(Buffer.VERTEX), 0,
-                Vec2.SIZE + Vec3.SIZE);
+        gl.glVertexArrayVertexBuffer(vertexArrayName.get(0), Semantic.Stream.A, bufferName.get(Buffer.VERTEX), 0, (2 + 3) * 4);
     }
 
     @Override
@@ -235,8 +230,9 @@ public class HelloTriangle implements GLEventListener, KeyListener {
 
         // view matrix
         {
-            Mat4x4 view = new Mat4x4();
-            view.to(globalMatricesPointer, Mat4x4.SIZE);
+            float[] view = FloatUtil.makeIdentity(new float[16]);
+            for (int i = 0; i < 16; i++)
+                globalMatricesPointer.putFloat(16 * 4 + i * 4, view[i]);
         }
 
 
@@ -248,11 +244,10 @@ public class HelloTriangle implements GLEventListener, KeyListener {
             long now = System.currentTimeMillis();
             float diff = (float) (now - start) / 1_000;
 
-            Mat4x4 model = new Mat4x4();
-            model
-                    .scale_(0.5f)
-                    .rotate_(diff, 0f, 0f, 1f)
-                    .to(modelMatrixPointer);
+            float[] scale = FloatUtil.makeScale(new float[16], true, 0.5f, 0.5f, 0.5f);
+            float[] rotateZ = FloatUtil.makeRotationAxis(new float[16], 0, diff, 0f, 0f, 1f, new float[3]);
+            float[] model = FloatUtil.multMatrix(scale, rotateZ);
+            modelMatrixPointer.asFloatBuffer().put(model);
         }
 
         gl.glUseProgram(program.name);
@@ -284,7 +279,8 @@ public class HelloTriangle implements GLEventListener, KeyListener {
         GL4 gl = drawable.getGL().getGL4();
 
         // ortho matrix
-        glm.ortho(-1f, 1f, -1f, 1f, 1f, -1f).to(globalMatricesPointer);
+        float[] ortho = FloatUtil.makeOrtho(new float[16], 0, false, -1f, 1f, -1f, 1f, 1f, -1f);
+        globalMatricesPointer.asFloatBuffer().put(ortho);
 
         gl.glViewport(x, y, width, height);
     }
@@ -300,8 +296,6 @@ public class HelloTriangle implements GLEventListener, KeyListener {
         gl.glDeleteProgram(program.name);
         gl.glDeleteVertexArrays(1, vertexArrayName);
         gl.glDeleteBuffers(Buffer.MAX, bufferName);
-
-        destroyBuffers(vertexArrayName, bufferName, clearColor, clearDepth);
     }
 
     @Override
@@ -315,5 +309,73 @@ public class HelloTriangle implements GLEventListener, KeyListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
+    }
+
+    private class Program {
+
+        public int name = 0;
+
+        public Program(GL4 gl, String root, String vertex, String fragment) {
+
+            ShaderCode vertShader = ShaderCode.create(gl, GL_VERTEX_SHADER, this.getClass(), root, null, vertex,
+                    "vert", null, true);
+            ShaderCode fragShader = ShaderCode.create(gl, GL_FRAGMENT_SHADER, this.getClass(), root, null, fragment,
+                    "frag", null, true);
+
+            ShaderProgram shaderProgram = new ShaderProgram();
+
+            shaderProgram.add(vertShader);
+            shaderProgram.add(fragShader);
+
+            shaderProgram.init(gl);
+
+            name = shaderProgram.program();
+
+            shaderProgram.link(gl, System.err);
+        }
+    }
+
+    private class GlDebugOutput implements GLDebugListener {
+
+        private int source = 0;
+        private int type = 0;
+        private int id = 0;
+        private int severity = 0;
+        private int length = 0;
+        private String message = null;
+        private boolean received = false;
+
+        public GlDebugOutput() {
+        }
+
+        public GlDebugOutput(int source, int type, int severity) {
+            this.source = source;
+            this.type = type;
+            this.severity = severity;
+            this.message = null;
+            this.id = -1;
+        }
+
+        public GlDebugOutput(String message, int id) {
+            this.source = -1;
+            this.type = -1;
+            this.severity = -1;
+            this.message = message;
+            this.id = id;
+        }
+
+        @Override
+        public void messageSent(GLDebugMessage event) {
+
+            if (event.getDbgSeverity() == GL_DEBUG_SEVERITY_LOW || event.getDbgSeverity() == GL_DEBUG_SEVERITY_NOTIFICATION)
+                System.out.println("GlDebugOutput.messageSent(): " + event);
+            else
+                System.err.println("GlDebugOutput.messageSent(): " + event);
+
+            if (null != message && message == event.getDbgMsg() && id == event.getDbgId())
+                received = true;
+            else if (0 <= source && source == event.getDbgSource() && type == event.getDbgType() && severity == event.getDbgSeverity())
+                received = true;
+        }
     }
 }
