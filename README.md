@@ -1,7 +1,7 @@
 #Content: 
 
 - OpenGL 4:
-    - Hello Triangle, a rotating triangle using OpenGL 4, <a href="url"><img src="http://i.imgur.com/TwaAkzc.png" width="30" ></a>, [Java](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/java/gl4/HelloTriangle.java) and [Kotlin](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/kotlin/gl4/helloTriangle.kt)
+    - Hello Triangle, a rotating triangle using OpenGL 4, <a href="url"><img src="http://i.imgur.com/TwaAkzc.png" width="30" ></a>, [Simple Java](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/java/gl4/HelloTriangleSimple.java) using pure plain JOGL, without additional libraries, [Java](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/java/gl4/HelloTriangle.java) and [Kotlin](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/kotlin/gl4/helloTriangle.kt)
     
     - Hello Globe, a rotating globe with a texture using OpenGL 4, <a href="url"><img src="http://i.imgur.com/0NqgdcP.png" width="30" ></a>, [Java](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/java/gl4/HelloGlobe.java) and [Kotlin](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/kotlin/gl4/helloGlobe.kt)
     
