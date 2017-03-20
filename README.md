@@ -1,4 +1,4 @@
-#Content: 
+## Content: 
 
 - OpenGL 4:
     - Hello Triangle: <img src="./screenshots/triangle-gl4.png" height="36px"> 
@@ -9,7 +9,7 @@
     - Hello Globe: <img src="./screenshots/texture-gl4.png" height="36px"> 
         - [Java](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/java/gl4/HelloGlobe.java)
         - [Kotlin](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/kotlin/gl4/helloGlobe.kt) 
-    
+   
     
     
 - OpenGL 3:
@@ -23,7 +23,7 @@
         - [Java](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/java/gl3/HelloTexture.java) 
         - [Kotlin](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/kotlin/gl3/helloTexture.kt) 
 
-# Quick start:
+## Quick start:
 
 * clone
 * sync Gradle
