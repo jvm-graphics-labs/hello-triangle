@@ -30,3 +30,6 @@
 * run it and enjoy the OpenGL acceleration on Java :sunglasses: (or even better, on Kotlin :scream:)
 
 If you have any problem/question/doubt do not hesitate asking on the [jogl forums](http://forum.jogamp.org/) or [StackOverflow](http://stackoverflow.com/) or open an [issue here](https://github.com/elect86/helloTriangle/issues)
+
+
+In case you find the above samples too complex or difficult to understand, I strongly suggest you to start from scratch with a jogl tutorial, such as [modern-jogl-examples](https://github.com/java-opengl-labs/modern-jogl-examples). The original C tutorial it's ported from, it's one of the best, if not the best, out there.
