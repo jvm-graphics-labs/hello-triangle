@@ -57,7 +57,7 @@ public class HelloTexture implements GLEventListener, KeyListener {
     private static Animator animator;
 
     public static void main(String[] args) {
-        new HelloTextureK().initGL();
+        new HelloTextureK().setup();
     }
 
     private float[] vertexData = {
@@ -93,7 +93,7 @@ public class HelloTexture implements GLEventListener, KeyListener {
 
     private long start;
 
-    private void initGL() {
+    private void setup() {
 
         GLProfile glProfile = GLProfile.get(GLProfile.GL3);
         GLCapabilities glCapabilities = new GLCapabilities(glProfile);

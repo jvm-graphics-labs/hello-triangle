@@ -28,7 +28,7 @@ import java.nio.ShortBuffer
 import kotlin.properties.Delegates
 
 fun main(args: Array<String>) {
-    HelloGlobe_().initGL()
+    HelloGlobe_().setup()
 }
 
 class HelloGlobe_ : GLEventListener, KeyListener {
@@ -65,7 +65,7 @@ class HelloGlobe_ : GLEventListener, KeyListener {
 
     var elementCount = 0
 
-    fun initGL() {
+    fun setup() {
 
         val glProfile = GLProfile.get(GLProfile.GL3)
         val glCapabilities = GLCapabilities(glProfile)

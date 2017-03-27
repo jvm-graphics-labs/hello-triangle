@@ -27,7 +27,7 @@ import kotlin.properties.Delegates
  */
 
 fun main(args: Array<String>) {
-    HelloTriangleK().initGL()
+    HelloTriangleK().setup()
 }
 
 class HelloTriangleK : GLEventListener, KeyListener {
@@ -61,7 +61,7 @@ class HelloTriangleK : GLEventListener, KeyListener {
 
     var start = 0L
 
-    fun initGL() {
+    fun setup() {
 
         val glProfile = GLProfile.get(GLProfile.GL3)
         val glCapabilities = GLCapabilities(glProfile)

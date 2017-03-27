@@ -62,7 +62,7 @@ public class HelloGlobe implements GLEventListener, KeyListener {
     private static Animator animator;
 
     public static void main(String[] args) {
-        new HelloGlobe().initGL();
+        new HelloGlobe().setup();
     }
 
     private interface Buffer {
@@ -93,7 +93,7 @@ public class HelloGlobe implements GLEventListener, KeyListener {
 
     private int elementCount;
 
-    private void initGL() {
+    private void setup() {
 
         GLProfile glProfile = GLProfile.get(GLProfile.GL3);
         GLCapabilities glCapabilities = new GLCapabilities(glProfile);

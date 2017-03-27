@@ -30,7 +30,7 @@ import kotlin.properties.Delegates
  */
 
 fun main(args: Array<String>) {
-    HelloTextureK().initGL()
+    HelloTextureK().setup()
 }
 
 class HelloTextureK : GLEventListener, KeyListener {
@@ -68,7 +68,7 @@ class HelloTextureK : GLEventListener, KeyListener {
 
     var start = 0L
 
-    fun initGL() {
+    fun setup() {
 
         val glProfile = GLProfile.get(GLProfile.GL3)
         val glCapabilities = GLCapabilities(glProfile)

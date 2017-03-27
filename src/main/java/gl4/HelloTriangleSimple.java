@@ -9,7 +9,6 @@ import com.jogamp.opengl.util.GLBuffers;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 import framework.Semantic;
-import jogamp.opengl.GLDebugMessageHandler;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -36,7 +35,7 @@ public class HelloTriangleSimple implements GLEventListener, KeyListener {
     private static Animator animator;
 
     public static void main(String[] args) {
-        new HelloTriangleSimple().initGL();
+        new HelloTriangleSimple().setup();
     }
 
     private float[] vertexData = {
@@ -72,7 +71,7 @@ public class HelloTriangleSimple implements GLEventListener, KeyListener {
     private long start;
 
 
-    private void initGL() {
+    private void setup() {
 
         GLProfile glProfile = GLProfile.get(GLProfile.GL3);
         GLCapabilities glCapabilities = new GLCapabilities(glProfile);
