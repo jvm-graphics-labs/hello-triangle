@@ -75,6 +75,7 @@ class HelloGlobe_ : GLEventListener, KeyListener {
         window.title = "Hello Globe"
         window.setSize(1024, 768)
 
+        window.contextCreationFlags = GLContext.CTX_OPTION_DEBUG
         window.isVisible = true
 
         window.addGLEventListener(this)
@@ -85,7 +86,9 @@ class HelloGlobe_ : GLEventListener, KeyListener {
 
         window.addWindowListener(object : WindowAdapter() {
             override fun windowDestroyed(e: WindowEvent?) {
-                animator.stop(); System.exit(1); }
+                animator.stop()
+                System.exit(1)
+            }
         })
     }
 

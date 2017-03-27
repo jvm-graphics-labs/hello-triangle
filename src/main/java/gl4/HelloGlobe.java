@@ -103,6 +103,7 @@ public class HelloGlobe implements GLEventListener, KeyListener {
         window.setTitle("Hello Globe");
         window.setSize(1024, 768);
 
+        window.setContextCreationFlags(GLContext.CTX_OPTION_DEBUG);
         window.setVisible(true);
 
         window.addGLEventListener(this);

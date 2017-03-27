@@ -1,9 +1,6 @@
 package gl4;
 
-import com.jogamp.newt.event.KeyEvent;
-import com.jogamp.newt.event.KeyListener;
-import com.jogamp.newt.event.WindowAdapter;
-import com.jogamp.newt.event.WindowEvent;
+import com.jogamp.newt.event.*;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.math.FloatUtil;
@@ -12,6 +9,7 @@ import com.jogamp.opengl.util.GLBuffers;
 import com.jogamp.opengl.util.glsl.ShaderCode;
 import com.jogamp.opengl.util.glsl.ShaderProgram;
 import framework.Semantic;
+import jogamp.opengl.GLDebugMessageHandler;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -84,6 +82,7 @@ public class HelloTriangleSimple implements GLEventListener, KeyListener {
         window.setTitle("Hello Triangle (enhanced)");
         window.setSize(1024, 768);
 
+        window.setContextCreationFlags(GLContext.CTX_OPTION_DEBUG);
         window.setVisible(true);
 
         window.addGLEventListener(this);
@@ -122,7 +121,12 @@ public class HelloTriangleSimple implements GLEventListener, KeyListener {
 
     private void initDebug(GL4 gl) {
 
-        window.getContext().addGLDebugListener(new GlDebugOutput());
+        window.getContext().addGLDebugListener(new GLDebugListener() {
+            @Override
+            public void messageSent(GLDebugMessage event) {
+                System.out.println(event);
+            }
+        });
 
         gl.glDebugMessageControl(
                 GL_DONT_CARE,

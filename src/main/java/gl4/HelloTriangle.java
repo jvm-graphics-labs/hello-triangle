@@ -83,10 +83,11 @@ public class HelloTriangle implements GLEventListener, KeyListener {
         window.setTitle("Hello Triangle (enhanced)");
         window.setSize(1024, 768);
 
-        window.setVisible(true);
-
         window.addGLEventListener(this);
         window.addKeyListener(this);
+
+        window.setContextCreationFlags(GLContext.CTX_OPTION_DEBUG);
+        window.setVisible(true);
 
         animator = new Animator(window);
         animator.start();

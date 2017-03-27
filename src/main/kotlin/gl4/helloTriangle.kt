@@ -83,6 +83,7 @@ class HelloTriangleK : GLEventListener, KeyListener {
         window.title = "Hello Triangle (enhanced)"
         window.setSize(1024, 768)
 
+        window.contextCreationFlags = GLContext.CTX_OPTION_DEBUG
         window.isVisible = true
 
         window.addGLEventListener(this)
@@ -118,6 +119,7 @@ class HelloTriangleK : GLEventListener, KeyListener {
     fun initDebug(gl: GL4) = with(gl) {
 
         window.context.addGLDebugListener(GlDebugOutput())
+
         // Turn off all the debug
         glDebugMessageControl(
                 GL_DONT_CARE, // source
