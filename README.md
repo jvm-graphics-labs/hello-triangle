@@ -22,6 +22,14 @@
     - Hello Texture: <img src="./screenshots/texture-gl3.png" height="36px"> 
         - [Java](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/java/gl3/HelloTexture.java) 
         - [Kotlin](https://github.com/java-opengl-labs/helloTriangle/blob/master/src/main/kotlin/gl3/helloTexture.kt) 
+        
+    - GL injection: shows how to inject GL commands into a GL fifo from another thread (like the input listener):
+        - [Java](https://github.com/java-opengl-labs/hello-triangle/blob/master/src/main/java/gl3/GL_injection.java)
+        - [Kotlin](https://github.com/java-opengl-labs/hello-triangle/blob/master/src/main/kotlin/gl3/gl_injection.kt)
+        
+    - Input into rendering: shows how to use a fifo stack to pipe events from the EDT (listener) into the rendering loop:
+        - [Java](https://github.com/java-opengl-labs/hello-triangle/blob/master/src/main/java/gl3/Input_into_rendering.java)
+        - [Kotlin](https://github.com/java-opengl-labs/hello-triangle/blob/master/src/main/kotlin/gl3/input_into_rendering.kt)
 
 ## Quick start:
 
