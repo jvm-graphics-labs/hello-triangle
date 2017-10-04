@@ -33,9 +33,10 @@
 
 ## Quick start:
 
-* clone
-* sync Gradle
+* clone & sync Gradle
 * run it and enjoy the OpenGL acceleration on Java :sunglasses: (or even better, on Kotlin :scream:)
+
+If you don't know how to do, follow this simple [tutorial](https://github.com/java-opengl-labs/hello-triangle/wiki/How-to-clone-the-project-and-get-it-running)
 
 If you have any problem/question/doubt do not hesitate asking on the [jogl forums](http://forum.jogamp.org/) or [StackOverflow](http://stackoverflow.com/) or open an [issue here](https://github.com/elect86/helloTriangle/issues)
 
